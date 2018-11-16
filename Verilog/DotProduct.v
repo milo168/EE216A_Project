@@ -47,7 +47,12 @@ module DotProduct(
    
    always@(posedge clk)begin
        if(GlobalReset == 1'b1)begin
-           
+           Wgt <= 19'b0;
+           px <= 10'b0;
+           FPMAns <= 26'b0;
+           addInput1 <= 26'b0;
+           addInput2 <= 26'b0;
+           FPAAns <= 26'b0;
        end
    end
 
