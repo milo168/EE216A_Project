@@ -20,7 +20,16 @@
  */
 // **       Copyright 2005-2014 Synopsys, Inc.  All rights reserved.    **
 
-`include "define.h"
+`define activehigh 1
+`define activeedge posedge //if posedge activehigh should be 1, if negedge activehigh should be 0
+`define procline posedge clk or `activeedge rst
+`define proclineg posedge clk or `activeedge grst
+`define proclineSlow posedge clkSlow or `activeedge rst
+`define proclineFast posedge clkFast or `activeedge rst
+`define proclinerclk posedge rclk or `activeedge rgrst
+`define proclinewclk posedge wclk or `activeedge wgrst
+`define grsttype "asynch"
+//`include "define.h"
 `define log_floor(n)   ((n) <= (1<<0) ? 0 : (n) <= (1<<1) ? 1 :\
 						(n) <= (1<<2) ? 2 : (n) <= (1<<3) ? 3 :\
 						(n) <= (1<<4) ? 4 : (n) <= (1<<5) ? 5 :\
