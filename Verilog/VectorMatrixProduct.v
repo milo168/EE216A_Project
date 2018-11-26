@@ -17,7 +17,7 @@ module VectorMatrixProduct
       DotProduct DP(.clk(clk),
                     .GlobalReset(GlobalReset),
                     .Pixels     (Pixels),
-                    .Weights    (Weights[(i+1)*PIXEL_SIZE*WEIGHT_SIZE-1:(i+1)*PIXEL_SIZE*WEIGHT_SIZE]),
+                    .Weights    (Weights[(i+1)*PIXEL_SIZE*WEIGHT_SIZE-1:i*PIXEL_SIZE*WEIGHT_SIZE]),
                     .value      (vals[i])
                     );
    end

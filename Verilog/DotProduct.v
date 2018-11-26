@@ -10,26 +10,26 @@ module DotProduct
    output [25:0] value
 );
 
-   wire [18:0] A_0 = Pixels[18:0];
-   wire [18:0] A_1 = Pixels[37:19];
-   wire [18:0] A_2 = Pixels[56:38];
-   wire [18:0] A_3 = Pixels[75:57];
-   wire [18:0] A_4 = Pixels[94:76];
-   wire [18:0] A_5 = Pixels[113:95];
-   wire [18:0] A_6 = Pixels[132:114];
-   wire [18:0] A_7 = Pixels[151:133];
-   wire [18:0] A_8 = Pixels[170:152];
-   wire [18:0] A_9 = Pixels[189:171];
-   wire [9:0] B_0 = Weights[9:0];
-   wire [9:0] B_1 = Weights[19:10];
-   wire [9:0] B_2 = Weights[29:20];
-   wire [9:0] B_3 = Weights[39:30];
-   wire [9:0] B_4 = Weights[49:40];
-   wire [9:0] B_5 = Weights[59:50];
-   wire [9:0] B_6 = Weights[69:60];
-   wire [9:0] B_7 = Weights[79:70];
-   wire [9:0] B_8 = Weights[89:80];
-   wire [9:0] B_9 = Weights[99:90];
+   wire [18:0] A_0 = Weights[18:0];
+   wire [18:0] A_1 = Weights[37:19];
+   wire [18:0] A_2 = Weights[56:38];
+   wire [18:0] A_3 = Weights[75:57];
+   wire [18:0] A_4 = Weights[94:76];
+   wire [18:0] A_5 = Weights[113:95];
+   wire [18:0] A_6 = Weights[132:114];
+   wire [18:0] A_7 = Weights[151:133];
+   wire [18:0] A_8 = Weights[170:152];
+   wire [18:0] A_9 = Weights[189:171];
+   wire [9:0] B_0 = Pixels[9:0];
+   wire [9:0] B_1 = Pixels[19:10];
+   wire [9:0] B_2 = Pixels[29:20];
+   wire [9:0] B_3 = Pixels[39:30];
+   wire [9:0] B_4 = Pixels[49:40];
+   wire [9:0] B_5 = Pixels[59:50];
+   wire [9:0] B_6 = Pixels[69:60];
+   wire [9:0] B_7 = Pixels[79:70];
+   wire [9:0] B_8 = Pixels[89:80];
+   wire [9:0] B_9 = Pixels[99:90];
    
    reg[18:0] A;
    reg[9:0] B;

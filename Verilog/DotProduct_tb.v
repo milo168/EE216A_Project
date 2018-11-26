@@ -5,19 +5,22 @@ module DotProduct_tb();
     reg GlobalReset;
     wire[25:0] result;
     reg[189:0] A;
-    reg[89:0] B;
+    reg[99:0] B;
     integer i;
+    wire[9:0] i_w;
     
     DotProduct DotProductTest(.clk(clk),
                             .GlobalReset(GlobalReset),
-                            .Pixels(A),
-                            .Weights(B),
+                            .Pixels(B),
+                            .Weights(A),
                             .value(result));
     
     parameter halfclock = 1;
     parameter fullclock = 2*halfclock;
     
     always #halfclock clk = ~clk;
+
+    assign i_w = i;
     
     initial begin
        GlobalReset = 1'b1;
@@ -27,8 +30,8 @@ module DotProduct_tb();
        #fullclock GlobalReset = 1'b0; 
        
        for(i = 0; i < 10; i = i + 1)begin
-          A[(i+1)*19-1 : i*19] = 19'b010_0000_0000_0000_0000;
-          B[(i+1)*19-1 : i*19] = i;
+          A[i*19 +: 19] = 19'b010_0000_0000_0000_0000;
+          B[i*10 +: 10] = i;
        end
        
        for(i = 0; i < 32; i = i + 1)begin
