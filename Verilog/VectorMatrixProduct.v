@@ -8,7 +8,7 @@ module VectorMatrixProduct
    input GlobalReset,
    input [PIXEL_N*PIXEL_SIZE-1:0] Pixels,
    input [PIXEL_N*WEIGHT_SIZE*N-1:0] Weights, // rows are length PIXEL_N, cols N
-   output [25:0] value
+   output [26*N-1:0] value
 );
    reg[25:0] vals [0:N-1];
 
@@ -22,5 +22,9 @@ module VectorMatrixProduct
                     );
    end
 
+   genvar j;
+   for(j=0; j<N; j=j+1) begin:valgen
+      value[(j+1)*26-1:j*26] = vals[j];
+   end
 
 endmodule
