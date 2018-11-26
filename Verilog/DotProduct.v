@@ -1,27 +1,35 @@
-module DotProduct(
+module DotProduct
+#(parameter PIXEL_N = 10,
+  parameter WEIGHT_SIZE = 19,
+  parameter PIXEL_SIZE = 10)
+(
    input clk,
    input GlobalReset,
-   input [18:0] A_0,
-   input [18:0] A_1,
-   input [18:0] A_2,
-   input [18:0] A_3,
-   input [18:0] A_4,
-   input [18:0] A_5,
-   input [18:0] A_6,
-   input [18:0] A_7,
-   input [18:0] A_8,
-   input [18:0] A_9,
-   input [9:0] B_0,
-   input [9:0] B_1,
-   input [9:0] B_2,
-   input [9:0] B_3,
-   input [9:0] B_4,
-   input [9:0] B_5,
-   input [9:0] B_6,
-   input [9:0] B_7,
-   input [9:0] B_8,
-   input [9:0] B_9,
-   output [25:0] value);
+   input [PIXEL_N*PIXEL_SIZE-1:0] Pixels,
+   input [PIXEL_N*WEIGHT_SIZE-1:0] Weights,
+   output [25:0] value
+);
+
+   wire [18:0] A_0 = Pixels[18:0];
+   wire [18:0] A_1 = Pixels[37:19];
+   wire [18:0] A_2 = Pixels[56:38];
+   wire [18:0] A_3 = Pixels[75:57];
+   wire [18:0] A_4 = Pixels[94:76];
+   wire [18:0] A_5 = Pixels[113:95];
+   wire [18:0] A_6 = Pixels[132:114];
+   wire [18:0] A_7 = Pixels[151:133];
+   wire [18:0] A_8 = Pixels[170:152];
+   wire [18:0] A_9 = Pixels[189:171];
+   wire [9:0] B_0 = Weights[9:0];
+   wire [9:0] B_1 = Weights[19:10];
+   wire [9:0] B_2 = Weights[29:20];
+   wire [9:0] B_3 = Weights[39:30];
+   wire [9:0] B_4 = Weights[49:40];
+   wire [9:0] B_5 = Weights[59:50];
+   wire [9:0] B_6 = Weights[69:60];
+   wire [9:0] B_7 = Weights[79:70];
+   wire [9:0] B_8 = Weights[89:80];
+   wire [9:0] B_9 = Weights[99:90];
    
    reg[18:0] A;
    reg[9:0] B;
