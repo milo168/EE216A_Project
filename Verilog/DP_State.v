@@ -4,7 +4,7 @@ module DotProductSt
   parameter PIXEL_SIZE = 10,
   parameter FPM_DELAY = 6,
   parameter FPA_DELAY = 2,
-  parameter PARALLEL = 1,
+  parameter PARALLEL = 2, 
   parameter VAL_SIZE = 26)
 (
    input clk,
@@ -14,26 +14,23 @@ module DotProductSt
    output [VAL_SIZE-1:0] value
 );
 
-
-   // state bit declarations
-   parameter MULT   = 3'b000;
-   parameter MULT_W = 3'b010;
-   parameter ADD    = 3'b011;
-   parameter ADD_W  = 3'b011;
-   parameter DONE   = 3'b100;
-
-   reg[2:0] st_r    [0:PARALLEL-1];
-   reg[3:0] m_w_cnt [0:PARALLEL-1]; // multiplier wait counter, 3 is a magic #
-   reg[3:0] a_w_cnt [0:PARALLEL-1]; // adder wait counter, 3 is a magic #
    integer  pix_ind [0:PARALLEL-1]; // index of pixel to do
    
    reg[WEIGHT_SIZE-1:0] A        [0:PARALLEL-1];
    reg[PIXEL_SIZE-1:0]  B        [0:PARALLEL-1];
-   reg[VAL_SIZE-1:0]    sum      [0:PARALLEL-1];
-   reg[VAL_SIZE-1:0]    prevsum  [0:PARALLEL-1];
    wire[VAL_SIZE-1:0]   FPMAns   [0:PARALLEL-1];
-   reg[2*VAL_SIZE-1:0]  addInput [0:PARALLEL-1];
-   wire[VAL_SIZE-1:0]   FPAAns   [0:PARALLEL-1];
+   reg[VAL_SIZE-1:0]    addInput1 [0:PARALLEL-1];
+   reg[VAL_SIZE-1:0]    addInput2 [0:PARALLEL-1];
+   reg[VAL_SIZE-1:0]    addInput3 [0:PARALLEL-1];
+   wire[VAL_SIZE-1:0]   FPAAns1  [0:PARALLEL-1];
+   wire[VAL_SIZE-1:0]   FPAAns2  [0:PARALLEL-1];
+   wire[VAL_SIZE-1:0]   FPAAns3  [0:PARALLEL-1];
+   reg[VAL_SIZE-1:0]    sum1     [0:PARALLEL-1];
+   reg[VAL_SIZE-1:0]    sum2     [0:PARALLEL-1];
+   reg[VAL_SIZE-1:0]    sum3     [0:PARALLEL-1];
+
+   integer cnt3;
+
 
    reg[VAL_SIZE-1:0]    sum_o;
    integer h;
@@ -44,7 +41,7 @@ module DotProductSt
    always @* begin
       sum_o = 0;
       for(h=0; h<PARALLEL; h=h+1)
-         sum_o = sum_o + sum[h];
+         sum_o = sum_o + sum1[h] + sum2[h] + sum3[h];
    end
    
    // generate PARALLEL number of FPM and FPAs
@@ -58,20 +55,20 @@ module DotProductSt
                           
       FixedPointAdder      FPA1(.clk(clk),
                                 .GlobalReset(GlobalReset),
-                                .Port2(addInput[i][2*VAL_SIZE-1:VAL_SIZE]),
-                                .Port1(addInput[i][VAL_SIZE-1:0]),
-                                .Output_syn(FPAAns[i]));
-   end
+                                .Port2(addInput1[i]),
+                                .Port1(sum1[i]),
+                                .Output_syn(FPAAns1[i]));
+      FixedPointAdder      FPA2(.clk(clk),
+                                .GlobalReset(GlobalReset),
+                                .Port2(addInput2[i]),
+                                .Port1(sum2[i]),
+                                .Output_syn(FPAAns2[i]));
+      FixedPointAdder      FPA3(.clk(clk),
+                                .GlobalReset(GlobalReset),
+                                .Port2(addInput3[i]),
+                                .Port1(sum3[i]),
+                                .Output_syn(FPAAns3[i]));
 
-   // NOTE: Might need to have GlobalReset be asserted for >2 clk cycles so prevsum is 0
-   genvar k;
-   for(k=0; k<PARALLEL; k=k+1) begin:prevsumgen
-      always@(posedge clk, posedge GlobalReset) begin
-         if(GlobalReset == 1'b1)
-            prevsum[k] <= 0;
-         else
-            prevsum[k] <= sum[k];
-      end
    end
 
    genvar j;
@@ -82,67 +79,51 @@ module DotProductSt
             A[j] <= 0;
             B[j] <= 0;
             // inputs to adders
-            addInput[j][2*VAL_SIZE-1:VAL_SIZE] <= 0;
-            addInput[j][VAL_SIZE-1:0]          <= 0;
-            // delay counters
-            m_w_cnt[j] <= 0;
-            a_w_cnt[j] <= 0;
-            // state
-            st_r[j] <= MULT;
+            addInput1[j] <= 0;
+            addInput2[j] <= 0;
+            addInput3[j] <= 0;
+
+            sum1[j] <= 0;
+            sum2[j] <= 0;
+            sum3[j] <= 0;
             pix_ind[j] <= j*PIXEL_N/PARALLEL;
+            cnt3 <= 0;
             //$display("RESET AT: %g",$time);
          end
          else begin
-            case(st_r[j])
-               MULT: begin
-                  A[j] <= Weights[pix_ind[j]*WEIGHT_SIZE +: WEIGHT_SIZE];
-                  B[j] <= Pixels [pix_ind[j]*PIXEL_SIZE  +: PIXEL_SIZE];
-                  st_r[j] <= MULT_W;
-                  //$display("0 %g",$time);
-               end
+            if(pix_ind[j] >= (j+1)*PIXEL_N/PARALLEL) begin // FINISH
+               A[j] <= 0;
+               B[j] <= 0;
+            end
+            else begin
+               A[j] <= Weights[pix_ind[j]*WEIGHT_SIZE +: WEIGHT_SIZE];
+               B[j] <= Pixels [pix_ind[j]*PIXEL_SIZE  +: PIXEL_SIZE];
+               pix_ind[j] = pix_ind[j] + 1;
+            end
+            case(cnt3)
+               0: begin
+                  addInput1[j] <= FPMAns[j];
+               end // 0:
 
-               MULT_W: begin
-                  if(m_w_cnt[j] < FPM_DELAY) begin
-                     m_w_cnt[j] <= m_w_cnt[j] + 1;
-                     st_r[j] <= MULT_W;
-                  end
-                  else begin
-                     m_w_cnt[j] <= 0;
-                     st_r[j] <= ADD;
-                  end
-               end
+               1: begin
+                  addInput2[j] <= FPMAns[j];
+               end // 1:
 
-               ADD: begin
-                  addInput[j][2*VAL_SIZE-1:VAL_SIZE] <= prevsum[j];
-                  addInput[j][2*VAL_SIZE-1:VAL_SIZE] <= FPMAns[j];
-                  st_r[j] <= ADD_W;
-               end
+               2: begin
+                  addInput3[j] <= FPMAns[j];
+               end // 2:
 
-               ADD_W: begin
-                  if(a_w_cnt[j] < FPA_DELAY) begin
-                     a_w_cnt[j] <= a_w_cnt[j] + 1;
-                     st_r[j] <= ADD_W;
-                  end
-                  else begin
-                     a_w_cnt[j] <= 0;
-                     if(pix_ind[j] < (j+1)*PIXEL_N/PARALLEL)
-                        st_r[j] <= MULT;
-                     else
-                        st_r[j] <= DONE;
-                  end
-               end
-
-               DONE: begin
-                  // do nothing
-                  st_r[j] <= DONE;
-               end
-               
                default: begin
-                   A[j] <= A[j];
-                   B[j] <= B[j];
-                   //$display("def %g",$time);
-               end
-            endcase
+
+               end // default:
+            endcase // pix_ind[j] % 3
+            sum1[j] <= FPAAns1[j];
+            sum2[j] <= FPAAns2[j];
+            sum3[j] <= FPAAns3[j];
+            if(cnt3 == 2)
+               cnt3 <= 0;
+            else
+               cnt3 <= cnt3 + 1;
          end
       end
    end
