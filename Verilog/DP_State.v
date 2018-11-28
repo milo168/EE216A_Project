@@ -14,26 +14,20 @@ module DotProductSt
    output [VAL_SIZE-1:0] value
 );
 
-
-   // state bit declarations
-   parameter MULT   = 3'b000;
-   parameter MULT_W = 3'b001;
-   parameter ADD    = 3'b010;
-   parameter ADD_W  = 3'b011;
-   parameter DONE   = 3'b100;
-
-   reg[2:0] st_r    [0:PARALLEL-1];
-   reg[3:0] m_w_cnt [0:PARALLEL-1]; // multiplier wait counter, 3 is a magic #
-   reg[3:0] a_w_cnt [0:PARALLEL-1]; // adder wait counter, 3 is a magic #
    integer  pix_ind [0:PARALLEL-1]; // index of pixel to do
    
    reg[WEIGHT_SIZE-1:0] A        [0:PARALLEL-1];
    reg[PIXEL_SIZE-1:0]  B        [0:PARALLEL-1];
-   reg[VAL_SIZE-1:0]    sum      [0:PARALLEL-1];
-   reg[VAL_SIZE-1:0]    prevsum  [0:PARALLEL-1];
    wire[VAL_SIZE-1:0]   FPMAns   [0:PARALLEL-1];
-   reg[2*VAL_SIZE-1:0]  addInput [0:PARALLEL-1];
-   wire[VAL_SIZE-1:0]   FPAAns   [0:PARALLEL-1];
+   reg[VAL_SIZE-1:0]    addInput1 [0:PARALLEL-1];
+   reg[VAL_SIZE-1:0]    addInput2 [0:PARALLEL-1];
+   reg[VAL_SIZE-1:0]    addInput3 [0:PARALLEL-1];
+   wire[VAL_SIZE-1:0]   FPAAns1  [0:PARALLEL-1];
+   wire[VAL_SIZE-1:0]   FPAAns2  [0:PARALLEL-1];
+   wire[VAL_SIZE-1:0]   FPAAns3  [0:PARALLEL-1];
+   reg[VAL_SIZE-1:0]    sum1     [0:PARALLEL-1];
+   reg[VAL_SIZE-1:0]    sum2     [0:PARALLEL-1];
+   reg[VAL_SIZE-1:0]    sum3     [0:PARALLEL-1];
 
    reg[VAL_SIZE-1:0]    sum_o;
    integer h;
@@ -44,7 +38,7 @@ module DotProductSt
    always @* begin
       sum_o = 0;
       for(h=0; h<PARALLEL; h=h+1)
-         sum_o = sum_o + sum[h];
+         sum_o = sum_o + sum1[h] + sum2[h] + sum3[h];
    end
    
    // generate PARALLEL number of FPM and FPAs
@@ -58,9 +52,20 @@ module DotProductSt
                           
       FixedPointAdder      FPA1(.clk(clk),
                                 .GlobalReset(GlobalReset),
-                                .Port2(addInput[i][2*VAL_SIZE-1:VAL_SIZE]),
-                                .Port1(addInput[i][VAL_SIZE-1:0]),
-                                .Output_syn(FPAAns[i]));
+                                .Port2(addInput1[i]),
+                                .Port1(sum1),
+                                .Output_syn(FPAAns1[i]));
+      FixedPointAdder      FPA2(.clk(clk),
+                                .GlobalReset(GlobalReset),
+                                .Port2(addInput2[i]),
+                                .Port1(sum1),
+                                .Output_syn(FPAAns2[i]));
+      FixedPointAdder      FPA2(.clk(clk),
+                                .GlobalReset(GlobalReset),
+                                .Port2(addInput3[i]),
+                                .Port1(sum1),
+                                .Output_syn(FPAAns3[i]));
+
    end
 
    genvar j;
@@ -71,11 +76,16 @@ module DotProductSt
             A[j] <= 0;
             B[j] <= 0;
             // inputs to adders
-            addInput[j][2*VAL_SIZE-1:VAL_SIZE] <= 0;
-            addInput[j][VAL_SIZE-1:0]          <= 0;
+            addInput1[j][2*VAL_SIZE-1:VAL_SIZE] <= 0;
+            addInput1[j][VAL_SIZE-1:0]          <= 0;
+            addInput2[j][2*VAL_SIZE-1:VAL_SIZE] <= 0;
+            addInput2[j][VAL_SIZE-1:0]          <= 0;
+            addInput3[j][2*VAL_SIZE-1:VAL_SIZE] <= 0;
+            addInput3[j][VAL_SIZE-1:0]          <= 0;
 
-            sum[j] <= 0;
-            prevsum[j] <= 0;
+            sum1[j] <= 0;
+            sum2[j] <= 0;
+            sum3[j] <= 0;
             // delay counters
             m_w_cnt[j] <= 0;
             a_w_cnt[j] <= 0;
@@ -94,10 +104,26 @@ module DotProductSt
                B[j] <= Pixels [pix_ind[j]*PIXEL_SIZE  +: PIXEL_SIZE];
                pix_ind[j] = pix_ind[j] + 1;
             end
-            addInput[j][VAL_SIZE-1:0] <= prevsum[j];
-            addInput[j][2*VAL_SIZE-1:VAL_SIZE] <= FPMAns[j];
-            sum[j] <= FPAAns[j];
-            prevsum[j] <= sum[j];
+            case(pix_ind[j] % 3) begin
+               0: begin
+                  addInput1[j] <= FPMAns[j];
+               end // 0:
+
+               1: begin
+                  addInput2[j] <= FPMAns[j];
+               end // 1:
+
+               2: begin
+                  addInput3[j] <= FPMAns[j];
+               end // 2:
+
+               default: begin
+
+               end // default:
+            endcase // pix_ind[j] % 3
+            sum1[j] <= FPAAns1[j];
+            sum2[j] <= FPAAns2[j];
+            sum3[j] <= FPAAns3[j];
          end
       end
    end
