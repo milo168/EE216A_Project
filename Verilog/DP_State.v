@@ -35,6 +35,18 @@ module DotProductSt
    wire[VAL_SIZE-1:0]   FPMAns   [0:PARALLEL-1];
    reg[2*VAL_SIZE-1:0]  addInput [0:PARALLEL-1];
    wire[VAL_SIZE-1:0]   FPAAns   [0:PARALLEL-1];
+
+   reg[VAL_SIZE-1:0]    sum_o;
+   integer h;
+
+   value = sum_o;
+
+   // output the sum of the inputs
+   always @* begin
+      sum_o = 0;
+      for(h=0; h<PARALLEL; h=h+1)
+         sum_o = sum_o + sum[h];
+   end
    
    // generate PARALLEL number of FPM and FPAs
    genvar i;
@@ -90,6 +102,7 @@ module DotProductSt
                   st_r[j] <= MULT_W;
                   //$display("0 %g",$time);
                end
+
                MULT_W: begin
                   if(m_w_cnt < FPM_DELAY) begin
                      m_w_cnt <= m_w_cnt + 1;
@@ -100,11 +113,13 @@ module DotProductSt
                      st_r[j] <= ADD;
                   end
                end
+
                ADD: begin
                   addInput[j][2*VAL_SIZE-1:VAL_SIZE] <= prevsum;
                   addInput[j][2*VAL_SIZE-1:VAL_SIZE] <= FPMAns[j];
                   st_r[j] <= ADD_W;
                end
+
                ADD_W: begin
                   if(a_w_cnt < FPA_DELAY) begin
                      a_w_cnt <= a_w_cnt + 1;
@@ -118,6 +133,11 @@ module DotProductSt
                         st_r[j] <= DONE;
                      end
                   end
+               end
+
+               DONE: begin
+                  // do nothing
+                  st_r[j] <= DONE;
                end
                
                default: begin
