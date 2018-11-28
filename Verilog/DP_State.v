@@ -4,7 +4,7 @@ module DotProductSt
   parameter PIXEL_SIZE = 10,
   parameter FPM_DELAY = 6,
   parameter FPA_DELAY = 2,
-  parameter PARALLEL = 1, 
+  parameter PARALLEL = 2, 
   parameter VAL_SIZE = 26)
 (
    input clk,
@@ -28,6 +28,9 @@ module DotProductSt
    reg[VAL_SIZE-1:0]    sum1     [0:PARALLEL-1];
    reg[VAL_SIZE-1:0]    sum2     [0:PARALLEL-1];
    reg[VAL_SIZE-1:0]    sum3     [0:PARALLEL-1];
+
+   integer cnt3;
+
 
    reg[VAL_SIZE-1:0]    sum_o;
    integer h;
@@ -53,17 +56,17 @@ module DotProductSt
       FixedPointAdder      FPA1(.clk(clk),
                                 .GlobalReset(GlobalReset),
                                 .Port2(addInput1[i]),
-                                .Port1(sum1),
+                                .Port1(sum1[i]),
                                 .Output_syn(FPAAns1[i]));
       FixedPointAdder      FPA2(.clk(clk),
                                 .GlobalReset(GlobalReset),
                                 .Port2(addInput2[i]),
-                                .Port1(sum1),
+                                .Port1(sum2[i]),
                                 .Output_syn(FPAAns2[i]));
-      FixedPointAdder      FPA2(.clk(clk),
+      FixedPointAdder      FPA3(.clk(clk),
                                 .GlobalReset(GlobalReset),
                                 .Port2(addInput3[i]),
-                                .Port1(sum1),
+                                .Port1(sum3[i]),
                                 .Output_syn(FPAAns3[i]));
 
    end
@@ -76,22 +79,15 @@ module DotProductSt
             A[j] <= 0;
             B[j] <= 0;
             // inputs to adders
-            addInput1[j][2*VAL_SIZE-1:VAL_SIZE] <= 0;
-            addInput1[j][VAL_SIZE-1:0]          <= 0;
-            addInput2[j][2*VAL_SIZE-1:VAL_SIZE] <= 0;
-            addInput2[j][VAL_SIZE-1:0]          <= 0;
-            addInput3[j][2*VAL_SIZE-1:VAL_SIZE] <= 0;
-            addInput3[j][VAL_SIZE-1:0]          <= 0;
+            addInput1[j] <= 0;
+            addInput2[j] <= 0;
+            addInput3[j] <= 0;
 
             sum1[j] <= 0;
             sum2[j] <= 0;
             sum3[j] <= 0;
-            // delay counters
-            m_w_cnt[j] <= 0;
-            a_w_cnt[j] <= 0;
-            // state
-            st_r[j] <= MULT;
             pix_ind[j] <= j*PIXEL_N/PARALLEL;
+            cnt3 <= 0;
             //$display("RESET AT: %g",$time);
          end
          else begin
@@ -104,7 +100,7 @@ module DotProductSt
                B[j] <= Pixels [pix_ind[j]*PIXEL_SIZE  +: PIXEL_SIZE];
                pix_ind[j] = pix_ind[j] + 1;
             end
-            case(pix_ind[j] % 3) begin
+            case(cnt3)
                0: begin
                   addInput1[j] <= FPMAns[j];
                end // 0:
@@ -124,6 +120,10 @@ module DotProductSt
             sum1[j] <= FPAAns1[j];
             sum2[j] <= FPAAns2[j];
             sum3[j] <= FPAAns3[j];
+            if(cnt3 == 2)
+               cnt3 <= 0;
+            else
+               cnt3 <= cnt3 + 1;
          end
       end
    end
