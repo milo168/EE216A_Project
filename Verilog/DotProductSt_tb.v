@@ -34,7 +34,7 @@ module DotProductSt_tb();
           B[i*10 +: 10] = i;
        end
        
-       for(i = 0; i < 32; i = i + 1)begin
+       for(i = 0; i < 100; i = i + 1)begin
           $display("%b%b%b%b%b%b%b%b.%b%b%b%b%b%b%b%b%b%b%b%b%b%b%b%b%b%b %b %d",
                 result[25], result[24], result[23], result[22], 
                 result[21], result[20], result[19], result[18],

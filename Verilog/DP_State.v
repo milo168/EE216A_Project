@@ -4,7 +4,7 @@ module DotProductSt
   parameter PIXEL_SIZE = 10,
   parameter FPM_DELAY = 6,
   parameter FPA_DELAY = 2,
-  parameter PARALLEL = 1,
+  parameter PARALLEL = 1, 
   parameter VAL_SIZE = 26)
 (
    input clk,
@@ -17,8 +17,8 @@ module DotProductSt
 
    // state bit declarations
    parameter MULT   = 3'b000;
-   parameter MULT_W = 3'b010;
-   parameter ADD    = 3'b011;
+   parameter MULT_W = 3'b001;
+   parameter ADD    = 3'b010;
    parameter ADD_W  = 3'b011;
    parameter DONE   = 3'b100;
 
@@ -84,6 +84,8 @@ module DotProductSt
             // inputs to adders
             addInput[j][2*VAL_SIZE-1:VAL_SIZE] <= 0;
             addInput[j][VAL_SIZE-1:0]          <= 0;
+
+	    sum[j] <= 0;
             // delay counters
             m_w_cnt[j] <= 0;
             a_w_cnt[j] <= 0;
@@ -113,7 +115,7 @@ module DotProductSt
                end
 
                ADD: begin
-                  addInput[j][2*VAL_SIZE-1:VAL_SIZE] <= prevsum[j];
+                  addInput[j][VAL_SIZE-1:0] <= prevsum[j];
                   addInput[j][2*VAL_SIZE-1:VAL_SIZE] <= FPMAns[j];
                   st_r[j] <= ADD_W;
                end
@@ -125,10 +127,14 @@ module DotProductSt
                   end
                   else begin
                      a_w_cnt[j] <= 0;
-                     if(pix_ind[j] < (j+1)*PIXEL_N/PARALLEL)
+		     sum[j] <= FPAAns[j];
+                     if(pix_ind[j] < (j+1)*PIXEL_N/PARALLEL-1) begin
+		     	pix_ind[j] <= pix_ind[j] + 1;
                         st_r[j] <= MULT;
-                     else
+		     end
+                     else begin
                         st_r[j] <= DONE;
+		     end
                   end
                end
 
