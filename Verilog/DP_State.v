@@ -14,7 +14,6 @@ module DotProductSt
    output [VAL_SIZE-1:0] value
 );
 
-   assign value = SOMETHING; // TODO
 
    // state bit declarations
    parameter MULT   = 3'b000;
@@ -39,7 +38,7 @@ module DotProductSt
    reg[VAL_SIZE-1:0]    sum_o;
    integer h;
 
-   value = sum_o;
+   assign value = sum_o;
 
    // output the sum of the inputs
    always @* begin
@@ -68,11 +67,10 @@ module DotProductSt
    genvar k;
    for(k=0; k<PARALLEL; k=k+1) begin:prevsumgen
       always@(posedge clk, posedge GlobalReset) begin
-         if(GlobalReset == 1'b1) begin
+         if(GlobalReset == 1'b1)
             prevsum[k] <= 0;
          else
-            prevsum[k] <= sum;
-         end
+            prevsum[k] <= sum[k];
       end
    end
 
@@ -104,34 +102,33 @@ module DotProductSt
                end
 
                MULT_W: begin
-                  if(m_w_cnt < FPM_DELAY) begin
-                     m_w_cnt <= m_w_cnt + 1;
+                  if(m_w_cnt[j] < FPM_DELAY) begin
+                     m_w_cnt[j] <= m_w_cnt[j] + 1;
                      st_r[j] <= MULT_W;
                   end
-                  else
-                     m_w_cnt <= 0;
+                  else begin
+                     m_w_cnt[j] <= 0;
                      st_r[j] <= ADD;
                   end
                end
 
                ADD: begin
-                  addInput[j][2*VAL_SIZE-1:VAL_SIZE] <= prevsum;
+                  addInput[j][2*VAL_SIZE-1:VAL_SIZE] <= prevsum[j];
                   addInput[j][2*VAL_SIZE-1:VAL_SIZE] <= FPMAns[j];
                   st_r[j] <= ADD_W;
                end
 
                ADD_W: begin
-                  if(a_w_cnt < FPA_DELAY) begin
-                     a_w_cnt <= a_w_cnt + 1;
-                     st_r[j] <= MULT_A;
+                  if(a_w_cnt[j] < FPA_DELAY) begin
+                     a_w_cnt[j] <= a_w_cnt[j] + 1;
+                     st_r[j] <= ADD_W;
                   end
-                  else
-                     m_w_cnt <= 0;
+                  else begin
+                     a_w_cnt[j] <= 0;
                      if(pix_ind[j] < (j+1)*PIXEL_N/PARALLEL)
                         st_r[j] <= MULT;
                      else
                         st_r[j] <= DONE;
-                     end
                   end
                end
 
