@@ -15,8 +15,8 @@ define_design_lib WORK -path ./WORK
 set alib_library_analysis_path “./alib-52/”
 
 # Read the gate-level verilog files
-analyze -format verilog {DotProduct784.v FixedPointAdder.v FixedPointMultiplier.v SynLib.v}
-set DESIGN_NAME DotProduct784
+analyze -format verilog {VectorMatrixProduct.v DotProduct784.v FixedPointAdder.v FixedPointMultiplier.v SynLib.v}
+set DESIGN_NAME VectorMatrixProduct
 
 elaborate $DESIGN_NAME
 current_design $DESIGN_NAME
