@@ -32,7 +32,6 @@ int main(int argc, char* argv[]){
 		code += "reg[18:0] WeightsStore" + to_string(i) + "[0:27];\n";
 	}
 	code += "reg[31:0] switchCounter;\n";
-	code += "reg[31:0] slowCounter;\n";
 	code += "wire[25:0] vals [0:" + to_string(NEURONS-1) + "];\n";
 	code += "\n";
 
@@ -57,35 +56,36 @@ int main(int argc, char* argv[]){
 	code += "always@(posedge clk)begin\n";
 	code += "	if(GlobalReset == 1'b1)begin\n";
 	code += "		switchCounter <= 32'd0;\n";
-	code += "		slowCounter <= 32'd0;\n";
 	for(int i = 0; i < PIXEL_N/28; i++){
 		code += "		PixelsStore[" + to_string(i) + "] <= 10'd0;\n";
 	}
 	for(int i = 0; i < NEURONS; i++){
 		for(int j = 0; j < PIXEL_N/28; j++){
-			code += "			WeightsStore" + to_string(i) + "[" + to_string(j) + "] = 19'd0;\n";
+			code += "		WeightsStore" + to_string(i) + "[" + to_string(j) + "] <= 19'd0;\n";
 		}
 	}
 	code += "	end else begin\n";
-	code += "		if(switchCounter % 32'd28 == 32'd27)begin \n";
 	for(int k = 0; k < PIXEL_N/28; k++){
-		code += "			if(slowCounter == 32'd" + to_string(k) + ")begin\n";
+		if(k == 0){
+			code += "		if(switchCounter == 32'd" + to_string(k) + ")begin\n";
+		}else{
+			code += "if(switchCounter == 32'd" + to_string(k) + ")begin\n";
+		}
 		for(int i = 0; i < PIXEL_N/28; i++){
-			code += "				PixelsStore[" + to_string(i) + "] = Pixels[(32'd" + to_string(k*PIXEL_N/28+i) + "+32'd1)*32'd10-1:32'd" + to_string(k*PIXEL_N/28+i) + "*32'd10];\n";
+			code += "			PixelsStore[" + to_string(i) + "] <= Pixels[(32'd" + to_string(k*PIXEL_N/28+i) + "+32'd1)*32'd10-1:32'd" + to_string(k*PIXEL_N/28+i) + "*32'd10];\n";
 		}
 		for(int i = 0; i < NEURONS; i++){
 			for(int j = 0; j < PIXEL_N/28; j++){
-				code += "				WeightsStore" + to_string(i) + "[" + to_string(j) + "] <= Weights" + to_string(i) + "[(32'd" + to_string(k*PIXEL_N/28+i) + "+32'd1)*32'd19-1:32'd" + to_string(k*PIXEL_N/28+i) + "*32'd19];\n";
+				code += "			WeightsStore" + to_string(i) + "[" + to_string(j) + "] <= Weights" + to_string(i) + "[(32'd" + to_string(k*PIXEL_N/28+i) + "+32'd1)*32'd19-1:32'd" + to_string(k*PIXEL_N/28+i) + "*32'd19];\n";
 			}
 		}
-		if(k != PIXEL_N/14-1){
-			code += "		end else\n";
+		if(k != PIXEL_N/28-1){
+			code += "		end else ";
 		}else{
 			code += "		end\n";
 		}
 	}
-	code += "			slowCounter <= slowCounter + 32'd1;\n";
-	code += "		end\n";
+
 	code += "		switchCounter <= switchCounter + 32'd1;\n";
 	code += "	end\n";
 	code += "end\n";
@@ -141,10 +141,13 @@ int main(int argc, char* argv[]){
 		code_tb += "		Weights" + to_string(i) + "[i*19 +: 19] = 19'b000_1000_0000_0000_0000;\n";
 	}
 	code_tb += " 		Pixels[i*10 +: 10] = i%2;\n";
+	code_tb += "		if(i%28 == 27) begin \n";
+	code_tb += "			#fullclock;\n";
+	code_tb += "		end\n;";
 	code_tb += "	end\n";
 	code_tb += "\n";
 
-	code_tb += "	for(i = 0; i < 290; i = i + 1)begin\n";
+	code_tb += "	for(i = 0; i < 260; i = i + 1)begin\n";
 	code_tb += "		#fullclock;\n";
 	code_tb += "	end\n";
 	code_tb += "\n";
