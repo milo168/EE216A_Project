@@ -23,9 +23,17 @@ module Max_tb();
        #halfclock;
        #fullclock GlobalReset = 1'b0; 
        
-       for(i = 0; i < 10; i = i + 1)begin
-          Nums[i*26 +: 26] = 10-i;
-       end
+       Nums[0*26 +: 26] = -10;
+       Nums[1*26 +: 26] = -15;
+       Nums[2*26 +: 26] = -2;
+       Nums[3*26 +: 26] = -100;
+       Nums[4*26 +: 26] = -30;
+       Nums[5*26 +: 26] = -10000;
+       Nums[6*26 +: 26] = -200;
+       Nums[7*26 +: 26] = -301234;
+       Nums[8*26 +: 26] = -1;
+       Nums[9*26 +: 26] = -69;
+       
        $display("%d", result);
        #fullclock;
        $display("%d", result);
