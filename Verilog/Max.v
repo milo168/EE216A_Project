@@ -26,12 +26,44 @@ module Max
 				ind_o = 1;
 			end
 
-			genvar i;
-			for(i=2; i<10; i=i+1) begin:ifgen
-				if(Num[NUM_SIZE*i +: NUM_SIZE] > max) begin
-					max = Num[NUM_SIZE*i +: NUM_SIZE];
-					ind_o = 2;
-				end
+			if(Num[NUM_SIZE*2 +: NUM_SIZE] > max) begin
+				max = Num[NUM_SIZE*2 +: NUM_SIZE];
+				ind_o = 2;
+			end
+
+			if(Num[NUM_SIZE*3 +: NUM_SIZE] > max) begin
+				max = Num[NUM_SIZE*3 +: NUM_SIZE];
+				ind_o = 3;
+			end
+
+			if(Num[NUM_SIZE*4 +: NUM_SIZE] > max) begin
+				max = Num[NUM_SIZE*4 +: NUM_SIZE];
+				ind_o = 4;
+			end
+
+			if(Num[NUM_SIZE*5 +: NUM_SIZE] > max) begin
+				max = Num[NUM_SIZE*5 +: NUM_SIZE];
+				ind_o = 5;
+			end
+
+			if(Num[NUM_SIZE*6 +: NUM_SIZE] > max) begin
+				max = Num[NUM_SIZE*6 +: NUM_SIZE];
+				ind_o = 6;
+			end
+
+			if(Num[NUM_SIZE*7 +: NUM_SIZE] > max) begin
+				max = Num[NUM_SIZE*7 +: NUM_SIZE];
+				ind_o = 7;
+			end
+
+			if(Num[NUM_SIZE*8 +: NUM_SIZE] > max) begin
+				max = Num[NUM_SIZE*8 +: NUM_SIZE];
+				ind_o = 8;
+			end
+
+			if(Num[NUM_SIZE*9 +: NUM_SIZE] > max) begin
+				max = Num[NUM_SIZE*9 +: NUM_SIZE];
+				ind_o = 9;
 			end
 		end
 	end
