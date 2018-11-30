@@ -6,14 +6,14 @@ module Max
 	output [3:0] Index
 );
 
-	reg [NUM_SIZE-1:0] signed max;
+	reg signed [NUM_SIZE-1:0] max;
 	reg [3:0] ind_o;
 
 	assign Index = ind_o;
 
 	always @* begin
 		if(GlobalReset == 1'b1) begin
-			max = -2;
+			max = 0;
 			ind_o = -1;
 		end
 		else begin
