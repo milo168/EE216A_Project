@@ -19,11 +19,11 @@ always #halfclock clk = ~clk;
 assign i_w = i;
 
 initial begin
-	GlobalReset = 1'b1;
+	GlobalReset = 1'b0;
 	clk = 1'b1;
 
 	#halfclock;
-	#fullclock GlobalReset = 1'b0;
+	#fullclock GlobalReset = 1'b1;
 
 	for(i = 0; i < 784; i = i+1) begin
 		A[i%28] = 19'b000_1000_0000_0000_0000;

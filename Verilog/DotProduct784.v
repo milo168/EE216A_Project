@@ -143,16 +143,16 @@ assign B[25] = Pixel25;
 assign B[26] = Pixel26;
 assign B[27] = Pixel27;
 
-FixedPointMultiplier FPM1(.clk(clk),.GlobalReset(GlobalReset),.WeightPort(A1),.PixelPort(B1),.Output_syn(FPMAns1));
-FixedPointMultiplier FPM2(.clk(clk),.GlobalReset(GlobalReset),.WeightPort(A2),.PixelPort(B2),.Output_syn(FPMAns2));
-FixedPointMultiplier FPM3(.clk(clk),.GlobalReset(GlobalReset),.WeightPort(A3),.PixelPort(B3),.Output_syn(FPMAns3));
-FixedPointMultiplier FPM4(.clk(clk),.GlobalReset(GlobalReset),.WeightPort(A4),.PixelPort(B4),.Output_syn(FPMAns4));
-FixedPointAdder FPA1(.clk(clk),.GlobalReset(GlobalReset),.Port2(addInput[1]),.Port1(addInput[0]),.Output_syn(FPAAns1));
-FixedPointAdder FPA2(.clk(clk),.GlobalReset(GlobalReset),.Port2(addInput[3]),.Port1(addInput[2]),.Output_syn(FPAAns2));
-FixedPointAdder FPA3(.clk(clk),.GlobalReset(GlobalReset),.Port2(addInput[5]),.Port1(addInput[4]),.Output_syn(FPAAns3));
+FixedPointMultiplier FPM1(.clk(clk),.GlobalReset(~GlobalReset),.WeightPort(A1),.PixelPort(B1),.Output_syn(FPMAns1));
+FixedPointMultiplier FPM2(.clk(clk),.GlobalReset(~GlobalReset),.WeightPort(A2),.PixelPort(B2),.Output_syn(FPMAns2));
+FixedPointMultiplier FPM3(.clk(clk),.GlobalReset(~GlobalReset),.WeightPort(A3),.PixelPort(B3),.Output_syn(FPMAns3));
+FixedPointMultiplier FPM4(.clk(clk),.GlobalReset(~GlobalReset),.WeightPort(A4),.PixelPort(B4),.Output_syn(FPMAns4));
+FixedPointAdder FPA1(.clk(clk),.GlobalReset(~GlobalReset),.Port2(addInput[1]),.Port1(addInput[0]),.Output_syn(FPAAns1));
+FixedPointAdder FPA2(.clk(clk),.GlobalReset(~GlobalReset),.Port2(addInput[3]),.Port1(addInput[2]),.Output_syn(FPAAns2));
+FixedPointAdder FPA3(.clk(clk),.GlobalReset(~GlobalReset),.Port2(addInput[5]),.Port1(addInput[4]),.Output_syn(FPAAns3));
 
 always@(posedge clk)begin
-	if(GlobalReset == 1'b1)begin
+	if(GlobalReset == 1'b0)begin
 		A1 <= A[0];
 		A2 <= A[14];
 		B1 <= B[0];
@@ -433,23 +433,18 @@ always@(posedge clk)begin
 		end 
 		if(switchCounter >= 32'd14 && switchCounter <= 32'd208) begin
 			addAns[switchCounter - 32'd14] <= FPAAns3;
-			$display("%d %b.%b", switchCounter, FPAAns3[25:18],FPAAns3[17:0]);
 		end else
 		if(switchCounter >= 32'd209 && switchCounter <= 32'd257) begin
 			addAns[switchCounter - 32'd209] <= FPAAns3;
-			$display("%d %b.%b", switchCounter, FPAAns3[25:18],FPAAns3[17:0]);
 		end else
 		if(switchCounter >= 32'd258 && switchCounter <= 32'd269) begin
 			addAns[switchCounter - 32'd258] <= FPAAns3;
-			$display("%d %b.%b", switchCounter, FPAAns3[25:18],FPAAns3[17:0]);
 		end else
 		if(switchCounter >= 32'd273 && switchCounter <= 32'd275) begin
 			addAns[switchCounter - 32'd273] <= FPAAns3;
-			$display("%d %b.%b", switchCounter, FPAAns3[25:18],FPAAns3[17:0]);
 		end else
 		if(switchCounter == 32'd282) begin
 			addAns[0] <= FPAAns3;
-			$display("%d %b.%b", switchCounter, FPAAns3[25:18],FPAAns3[17:0]);
 		end
 		switchCounter <= switchCounter + 32'd1;
 	end

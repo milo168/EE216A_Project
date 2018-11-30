@@ -59,17 +59,17 @@ int main(int argc, char* argv[]){
 	}
 	code += "\n";
 
-	code += "FixedPointMultiplier FPM1(.clk(clk),.GlobalReset(GlobalReset),.WeightPort(A1),.PixelPort(B1),.Output_syn(FPMAns1));\n";
-	code += "FixedPointMultiplier FPM2(.clk(clk),.GlobalReset(GlobalReset),.WeightPort(A2),.PixelPort(B2),.Output_syn(FPMAns2));\n";
-	code += "FixedPointMultiplier FPM3(.clk(clk),.GlobalReset(GlobalReset),.WeightPort(A3),.PixelPort(B3),.Output_syn(FPMAns3));\n";
-	code += "FixedPointMultiplier FPM4(.clk(clk),.GlobalReset(GlobalReset),.WeightPort(A4),.PixelPort(B4),.Output_syn(FPMAns4));\n";
-	code += "FixedPointAdder FPA1(.clk(clk),.GlobalReset(GlobalReset),.Port2(addInput[1]),.Port1(addInput[0]),.Output_syn(FPAAns1));\n";
-	code += "FixedPointAdder FPA2(.clk(clk),.GlobalReset(GlobalReset),.Port2(addInput[3]),.Port1(addInput[2]),.Output_syn(FPAAns2));\n";
-	code += "FixedPointAdder FPA3(.clk(clk),.GlobalReset(GlobalReset),.Port2(addInput[5]),.Port1(addInput[4]),.Output_syn(FPAAns3));\n";
+	code += "FixedPointMultiplier FPM1(.clk(clk),.GlobalReset(~GlobalReset),.WeightPort(A1),.PixelPort(B1),.Output_syn(FPMAns1));\n";
+	code += "FixedPointMultiplier FPM2(.clk(clk),.GlobalReset(~GlobalReset),.WeightPort(A2),.PixelPort(B2),.Output_syn(FPMAns2));\n";
+	code += "FixedPointMultiplier FPM3(.clk(clk),.GlobalReset(~GlobalReset),.WeightPort(A3),.PixelPort(B3),.Output_syn(FPMAns3));\n";
+	code += "FixedPointMultiplier FPM4(.clk(clk),.GlobalReset(~GlobalReset),.WeightPort(A4),.PixelPort(B4),.Output_syn(FPMAns4));\n";
+	code += "FixedPointAdder FPA1(.clk(clk),.GlobalReset(~GlobalReset),.Port2(addInput[1]),.Port1(addInput[0]),.Output_syn(FPAAns1));\n";
+	code += "FixedPointAdder FPA2(.clk(clk),.GlobalReset(~GlobalReset),.Port2(addInput[3]),.Port1(addInput[2]),.Output_syn(FPAAns2));\n";
+	code += "FixedPointAdder FPA3(.clk(clk),.GlobalReset(~GlobalReset),.Port2(addInput[5]),.Port1(addInput[4]),.Output_syn(FPAAns3));\n";
 	code += "\n";
 
 	code += "always@(posedge clk)begin\n";
-	code += "	if(GlobalReset == 1'b1)begin\n";
+	code += "	if(GlobalReset == 1'b0)begin\n";
 	code += "		A1 <= A[0];\n";
 	code += "		A2 <= A[14];\n";
 	code += "		B1 <= B[0];\n";
@@ -161,23 +161,23 @@ int main(int argc, char* argv[]){
 
 	code += "		if(switchCounter >= 32'd14 && switchCounter <= 32'd208) begin\n";
 	code += "			addAns[switchCounter - 32'd14] <= FPAAns3;\n";
-	code += "			$display(\"%d %b.%b\", switchCounter, FPAAns3[25:18],FPAAns3[17:0]);\n";
+	//code += "			$display(\"%d %b.%b\", switchCounter, FPAAns3[25:18],FPAAns3[17:0]);\n";
 	code += "		end else\n";
 	code += "		if(switchCounter >= 32'd209 && switchCounter <= 32'd257) begin\n";
 	code += "			addAns[switchCounter - 32'd209] <= FPAAns3;\n";
-	code += "			$display(\"%d %b.%b\", switchCounter, FPAAns3[25:18],FPAAns3[17:0]);\n";
+	//code += "			$display(\"%d %b.%b\", switchCounter, FPAAns3[25:18],FPAAns3[17:0]);\n";
 	code += "		end else\n";
 	code += "		if(switchCounter >= 32'd258 && switchCounter <= 32'd269) begin\n";
 	code += "			addAns[switchCounter - 32'd258] <= FPAAns3;\n";
-	code += "			$display(\"%d %b.%b\", switchCounter, FPAAns3[25:18],FPAAns3[17:0]);\n";
+	//code += "			$display(\"%d %b.%b\", switchCounter, FPAAns3[25:18],FPAAns3[17:0]);\n";
 	code += "		end else\n";
 	code += "		if(switchCounter >= 32'd273 && switchCounter <= 32'd275) begin\n";
 	code += "			addAns[switchCounter - 32'd273] <= FPAAns3;\n";
-	code += "			$display(\"%d %b.%b\", switchCounter, FPAAns3[25:18],FPAAns3[17:0]);\n";
+	//code += "			$display(\"%d %b.%b\", switchCounter, FPAAns3[25:18],FPAAns3[17:0]);\n";
 	code += "		end else\n";
 	code += "		if(switchCounter == 32'd282) begin\n";
 	code += "			addAns[0] <= FPAAns3;\n";
-	code += "			$display(\"%d %b.%b\", switchCounter, FPAAns3[25:18],FPAAns3[17:0]);\n";
+	//code += "			$display(\"%d %b.%b\", switchCounter, FPAAns3[25:18],FPAAns3[17:0]);\n";
 	code += "		end\n";
 
 	code += "		switchCounter <= switchCounter + 32'd1;\n";
@@ -222,12 +222,12 @@ int main(int argc, char* argv[]){
 	code_tb += "\n";
 	
 	code_tb += "initial begin\n";
-	code_tb += "	GlobalReset = 1'b1;\n";
+	code_tb += "	GlobalReset = 1'b0;\n";
 	code_tb += "	clk = 1'b1;\n";
 	code_tb += "\n";
 
 	code_tb += "	#halfclock;\n";
-	code_tb += "	#fullclock GlobalReset = 1'b0;\n";
+	code_tb += "	#fullclock GlobalReset = 1'b1;\n";
 	code_tb += "\n";
 	
 	code_tb += "	for(i = 0; i < 784; i = i+1) begin\n";
