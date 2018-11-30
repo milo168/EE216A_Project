@@ -46,9 +46,12 @@ initial begin
 		Weights8[i*19 +: 19] = 19'b000_1000_0000_0000_0000;
 		Weights9[i*19 +: 19] = 19'b000_1000_0000_0000_0000;
  		Pixels[i*10 +: 10] = i%2;
-	end
+		if(i%28 == 27) begin 
+			#fullclock;
+		end
+;	end
 
-	for(i = 0; i < 290; i = i + 1)begin
+	for(i = 0; i < 260; i = i + 1)begin
 		#fullclock;
 	end
 
