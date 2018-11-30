@@ -24,7 +24,7 @@ module Max_tb();
        #fullclock GlobalReset = 1'b0; 
        
        for(i = 0; i < 10; i = i + 1)begin
-          Nums[i*26 +: 26] = i;
+          Nums[i*26 +: 26] = 10-i;
        end
        $display("%d", result);
        #fullclock;

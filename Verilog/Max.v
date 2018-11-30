@@ -9,12 +9,12 @@ module Max
 	reg [NUM_SIZE-1:0] max;
 	reg [3:0] ind_o;
 
-	Index = ind_o;
+	assign Index = ind_o;
 
 	always @* begin
 		if(GlobalReset == 1'b1) begin
-			max = 0;
-			ind_o = 0;
+			max = -2;
+			ind_o = -1;
 		end
 		else begin
 			if(Num[NUM_SIZE*0 +: NUM_SIZE] > Num[NUM_SIZE*1 +: NUM_SIZE]) begin
@@ -67,3 +67,4 @@ module Max
 			end
 		end
 	end
+endmodule
