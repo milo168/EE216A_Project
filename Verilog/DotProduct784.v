@@ -163,7 +163,7 @@ always@(posedge clk)begin
 		B2 <= B[1];
 		B2 <= B[2];
 		B2 <= B[3];
-		biasWeight <= {6'd0,WeightBias};
+		biasWeight <= {{(7){WeightBias[18]}},WeightBias};
 		addInput[0] <= 26'd0;
 		addInput[1] <= 26'd0;
 		addInput[2] <= 26'd0;

@@ -64,7 +64,7 @@ int main(int argc, char* argv[]){
 	code += "always@(posedge clk)begin\n";
 	code += "	if(GlobalReset == 1'b0)begin\n";
 	code += "		switchCounter <= 32'd0;\n";
-	code += "		ready <= 1'b0;\n";
+	code += "		ready = 1'b0;\n";
 	code += "		internalReset = 1'b0;\n";
 	for(int i = 0; i < PIXEL_N+1; i++){
 		code += "		PixelsStore[" + to_string(i) + "] <= 10'd0;\n";
@@ -78,7 +78,7 @@ int main(int argc, char* argv[]){
 	code += "	end\n";
 	code += "	if(Input_Valid == 1'b1)begin\n";
 	code += "		switchCounter <= 32'd0;\n";
-	code += "		ready <= 1'b0;\n";
+	code += "		ready = 1'b0;\n";
 	code += "		internalReset = 1'b0;\n";
 	for(int i = 0; i < PIXEL_N+1; i++){
 		code += "		PixelsStore[" + to_string(i) + "] <= Pix_" + to_string(i) + ";\n";
@@ -109,7 +109,7 @@ int main(int argc, char* argv[]){
 		code += "		end else ";
 	}
 	code += "if(switchCounter == 32'd299) begin\n";
-	code += "			ready <= 1'b1;\n";
+	code += "			ready = 1'b1;\n";
 	for(int i = 0; i < NEURONS; i++){
 		code += "			$display(\"%d %b.%b\", switchCounter, value[" + to_string(26*(NEURONS-i)-1) + ":" + to_string(26*(NEURONS-i)-8) + "],value[" + to_string(26*(NEURONS-i)-9) + ":" + to_string(26*(NEURONS-i)-26) + "]);\n";
 	}

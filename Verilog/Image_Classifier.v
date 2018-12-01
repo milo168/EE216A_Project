@@ -9277,7 +9277,7 @@ Max max(.GlobalReset(internalReset),
 always@(posedge clk)begin
 	if(GlobalReset == 1'b0)begin
 		switchCounter <= 32'd0;
-		ready <= 1'b0;
+		ready = 1'b0;
 		internalReset = 1'b0;
 		PixelsStore[0] <= 10'd0;
 		PixelsStore[1] <= 10'd0;
@@ -17917,7 +17917,7 @@ always@(posedge clk)begin
 	end
 	if(Input_Valid == 1'b1)begin
 		switchCounter <= 32'd0;
-		ready <= 1'b0;
+		ready = 1'b0;
 		internalReset = 1'b0;
 		PixelsStore[0] <= Pix_0;
 		PixelsStore[1] <= Pix_1;
@@ -34902,7 +34902,7 @@ always@(posedge clk)begin
 			WeightsStore9[26] <= WeightsStore9[782];
 			WeightsStore9[27] <= WeightsStore9[783];
 		end else if(switchCounter == 32'd299) begin
-			ready <= 1'b1;
+			ready = 1'b1;
 			$display("%d %b.%b", switchCounter, value[259:252],value[251:234]);
 			$display("%d %b.%b", switchCounter, value[233:226],value[225:208]);
 			$display("%d %b.%b", switchCounter, value[207:200],value[199:182]);

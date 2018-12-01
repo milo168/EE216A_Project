@@ -83,7 +83,7 @@ int main(int argc, char* argv[]){
 	code += "		B2 <= B[1];\n";
 	code += "		B2 <= B[2];\n";
 	code += "		B2 <= B[3];\n";
-	code += "		biasWeight <= {6'd0,WeightBias};\n";
+	code += "		biasWeight <= {{(7){WeightBias[18]}},WeightBias};\n";
 	code += "		addInput[0] <= 26'd0;\n";
 	code += "		addInput[1] <= 26'd0;\n";
 	code += "		addInput[2] <= 26'd0;\n";
