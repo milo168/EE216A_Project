@@ -388,10 +388,6 @@ always@(posedge clk)begin
 			addInput[1] <= FPMAns2;
 			addInput[2] <= FPMAns3;
 			addInput[3] <= FPMAns4;
-			//$display("%d %b.%b", switchCounter, FPMAns1[25:18],FPMAns1[17:0]);
-			//$display("%d %b.%b", switchCounter, FPMAns2[25:18],FPMAns2[17:0]);
-			//$display("%d %b.%b", switchCounter, FPMAns3[25:18],FPMAns3[17:0]);
-			//$display("%d %b.%b", switchCounter, FPMAns4[25:18],FPMAns4[17:0]);
 		end else
 		if(switchCounter >= 32'd208 && switchCounter <= 32'd256) begin
 			addInput[0] <= addAns[(switchCounter - 32'd208) << 2'd2];
@@ -417,28 +413,20 @@ always@(posedge clk)begin
 			addInput[2] <= addAns[2];
  			addInput[3] <= addAns[48];
 		end 
-
 		if(switchCounter >= 32'd12 && switchCounter <= 32'd207) begin
 			addAns[switchCounter - 32'd12] <= FPAAns3;
-			//$display("%d %b.%b", switchCounter, FPAAns3[25:18],FPAAns3[17:0]);
 		end else
 		if(switchCounter >= 32'd213 && switchCounter <= 32'd261) begin
 			addAns[switchCounter - 32'd213] <= FPAAns3;
-		   //$display("%d %b.%b", switchCounter, FPAAns3[25:18],FPAAns3[17:0]);
 		end else
 		if(switchCounter >= 32'd267 && switchCounter <= 32'd278) begin
 			addAns[switchCounter - 32'd267] <= FPAAns3;
-			//$display("%d %b.%b", switchCounter, FPAAns3[25:18],FPAAns3[17:0]);
 		end else
 		if(switchCounter >= 32'd284 && switchCounter <= 32'd286) begin
 			addAns[switchCounter - 32'd284] <= FPAAns3;
-			//$display("%d %b.%b", switchCounter, FPAAns3[25:18],FPAAns3[17:0]);
-			//if(switchCounter == 32'd290)
-			//$display("%d %b.%b", switchCounter, addAns[48][25:18],addAns[48][17:0]);
 		end else
 		if(switchCounter == 32'd292) begin
 			addAns[0] <= FPAAns3;
-			//$display("%d %b.%b", switchCounter, FPAAns3[25:18],FPAAns3[17:0]);
 		end
 		switchCounter <= switchCounter + 32'd1;
 	end

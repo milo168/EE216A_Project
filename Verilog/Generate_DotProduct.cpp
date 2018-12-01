@@ -46,7 +46,7 @@ int main(int argc, char* argv[]){
 	code += "wire[25:0] FPAAns2;\n";
 	code += "wire[25:0] FPAAns3;\n";
 	code += "reg[25:0] addAns [0:195];\n";
-	code += "reg[25:0] addInput [0:5];\n";
+	code += "reg[25:0] addInput [0:3];\n";
 	code += "reg[31:0] switchCounter;\n";
 	code += "assign value = addAns[0];\n";
 	code += "\n";
@@ -65,21 +65,23 @@ int main(int argc, char* argv[]){
 	code += "FixedPointMultiplier FPM4(.clk(clk),.GlobalReset(~GlobalReset),.WeightPort(A4),.PixelPort(B4),.Output_syn(FPMAns4));\n";
 	code += "FixedPointAdder FPA1(.clk(clk),.GlobalReset(~GlobalReset),.Port2(addInput[1]),.Port1(addInput[0]),.Output_syn(FPAAns1));\n";
 	code += "FixedPointAdder FPA2(.clk(clk),.GlobalReset(~GlobalReset),.Port2(addInput[3]),.Port1(addInput[2]),.Output_syn(FPAAns2));\n";
-	code += "FixedPointAdder FPA3(.clk(clk),.GlobalReset(~GlobalReset),.Port2(addInput[5]),.Port1(addInput[4]),.Output_syn(FPAAns3));\n";
+	code += "FixedPointAdder FPA3(.clk(clk),.GlobalReset(~GlobalReset),.Port2(FPAAns2),.Port1(FPAAns1),.Output_syn(FPAAns3));\n";
 	code += "\n";
 
 	code += "always@(posedge clk)begin\n";
 	code += "	if(GlobalReset == 1'b0)begin\n";
 	code += "		A1 <= A[0];\n";
-	code += "		A2 <= A[14];\n";
+	code += "		A2 <= A[1];\n";
+	code += "		A3 <= A[2];\n";
+	code += "		A4 <= A[3];\n";
 	code += "		B1 <= B[0];\n";
-	code += "		B2 <= B[14];\n";
+	code += "		B2 <= B[1];\n";
+	code += "		B2 <= B[2];\n";
+	code += "		B2 <= B[3];\n";
 	code += "		addInput[0] <= 26'd0;\n";
 	code += "		addInput[1] <= 26'd0;\n";
 	code += "		addInput[2] <= 26'd0;\n";
 	code += "		addInput[3] <= 26'd0;\n";
-	code += "		addInput[4] <= 26'd0;\n";
-	code += "		addInput[5] <= 26'd0;\n";
 	code += "		switchCounter <= 32'd0;\n";
 	for(int i = 0; i < PIXEL_N/4*28; i++){
 		code += "		addAns[" + to_string(i) + "] <= 26'd0;\n";
@@ -112,70 +114,49 @@ int main(int argc, char* argv[]){
 	code += "			addInput[2] <= FPMAns3;\n";
 	code += "			addInput[3] <= FPMAns4;\n";
 	code += "		end else\n";
-	code += "		if(switchCounter >= 32'd203 && switchCounter <= 32'd251) begin\n";
-	code += "			addInput[0] <= addAns[(switchCounter - 32'd203) << 2'd1];\n";
-	code += " 			addInput[1] <= addAns[((switchCounter - 32'd203) << 2'd1) + 32'd1];\n";
-	code += "			addInput[2] <= addAns[((switchCounter - 32'd203) << 2'd1) + 32'd2];\n";
-	code += " 			addInput[3] <= addAns[((switchCounter - 32'd203) << 2'd1) + 32'd3];\n";
+	code += "		if(switchCounter >= 32'd208 && switchCounter <= 32'd256) begin\n";
+	code += "			addInput[0] <= addAns[(switchCounter - 32'd208) << 2'd2];\n";
+	code += " 			addInput[1] <= addAns[((switchCounter - 32'd208) << 2'd2) + 32'd1];\n";
+	code += "			addInput[2] <= addAns[((switchCounter - 32'd208) << 2'd2) + 32'd2];\n";
+	code += " 			addInput[3] <= addAns[((switchCounter - 32'd208) << 2'd2) + 32'd3];\n";
 	code += "		end else\n";
-	code += "		if(switchCounter >= 32'd252 && switchCounter <= 32'd263) begin\n";
-	code += "			addInput[0] <= addAns[(switchCounter - 32'd252) << 2'd1];\n";
-	code += " 			addInput[1] <= addAns[((switchCounter - 32'd252) << 2'd1) + 32'd1];\n";
-	code += "			addInput[2] <= addAns[((switchCounter - 32'd252) << 2'd1) + 32'd2];\n";
-	code += " 			addInput[3] <= addAns[((switchCounter - 32'd252) << 2'd1) + 32'd3];\n";
+	code += "		if(switchCounter >= 32'd262 && switchCounter <= 32'd273) begin\n";
+	code += "			addInput[0] <= addAns[(switchCounter - 32'd262) << 2'd2];\n";
+	code += " 			addInput[1] <= addAns[((switchCounter - 32'd262) << 2'd2) + 32'd1];\n";
+	code += "			addInput[2] <= addAns[((switchCounter - 32'd262) << 2'd2) + 32'd2];\n";
+	code += " 			addInput[3] <= addAns[((switchCounter - 32'd262) << 2'd2) + 32'd3];\n";
 	code += "		end else\n";
-	code += "		if(switchCounter >= 32'd267 && switchCounter <= 32'd269) begin\n";
-	code += "			addInput[0] <= addAns[(switchCounter - 32'd267) << 2'd1];\n";
-	code += " 			addInput[1] <= addAns[((switchCounter - 32'd267) << 2'd1) + 32'd1];\n";
-	code += "			addInput[2] <= addAns[((switchCounter - 32'd267) << 2'd1) + 32'd2];\n";
-	code += " 			addInput[3] <= addAns[((switchCounter - 32'd267) << 2'd1) + 32'd3];\n";
+	code += "		if(switchCounter >= 32'd279 && switchCounter <= 32'd281) begin\n";
+	code += "			addInput[0] <= addAns[(switchCounter - 32'd279) << 2'd2];\n";
+	code += " 			addInput[1] <= addAns[((switchCounter - 32'd279) << 2'd2) + 32'd1];\n";
+	code += "			addInput[2] <= addAns[((switchCounter - 32'd279) << 2'd2) + 32'd2];\n";
+	code += " 			addInput[3] <= addAns[((switchCounter - 32'd279) << 2'd2) + 32'd3];\n";
 	code += "		end else\n";
-	code += "		if(switchCounter == 32'd276) begin\n";
+	code += "		if(switchCounter == 32'd287) begin\n";
 	code += "			addInput[0] <= addAns[0];\n";
 	code += " 			addInput[1] <= addAns[1];\n";
 	code += "			addInput[2] <= addAns[2];\n";
 	code += " 			addInput[3] <= addAns[48];\n";
 	code += "		end \n";
 
-	code += "		if(switchCounter >= 32'd10 && switchCounter <= 32'd205) begin\n";
-	code += "			addInput[4] <= FPAAns1;\n";
-	code += " 			addInput[5] <= FPAAns2;\n";
-	code += "		end else\n";
-	code += "		if(switchCounter >= 32'd206 && switchCounter <= 32'd254) begin\n";
-	code += "			addInput[4] <= FPAAns1;\n";
-	code += " 			addInput[5] <= FPAAns2;\n";
-	code += "		end else\n";
-	code += "		if(switchCounter >= 32'd255 && switchCounter <= 32'd266) begin\n";
-	code += "			addInput[4] <= FPAAns1;\n";
-	code += " 			addInput[5] <= FPAAns2;\n";
-	code += "		end else\n";
-	code += "		if(switchCounter >= 32'd270 && switchCounter <= 32'd272) begin\n";
-	code += "			addInput[4] <= FPAAns1;\n";
-	code += " 			addInput[5] <= FPAAns2;\n";
-	code += "		end else\n";
-	code += "		if(switchCounter == 32'd279) begin\n";
-	code += "			addInput[4] <= FPAAns1;\n";
-	code += " 			addInput[5] <= FPAAns2;\n";
-	code += "		end \n";
 
-
-	code += "		if(switchCounter >= 32'd14 && switchCounter <= 32'd208) begin\n";
-	code += "			addAns[switchCounter - 32'd14] <= FPAAns3;\n";
+	code += "		if(switchCounter >= 32'd12 && switchCounter <= 32'd207) begin\n";
+	code += "			addAns[switchCounter - 32'd12] <= FPAAns3;\n";
 	//code += "			$display(\"%d %b.%b\", switchCounter, FPAAns3[25:18],FPAAns3[17:0]);\n";
 	code += "		end else\n";
-	code += "		if(switchCounter >= 32'd209 && switchCounter <= 32'd257) begin\n";
-	code += "			addAns[switchCounter - 32'd209] <= FPAAns3;\n";
+	code += "		if(switchCounter >= 32'd213 && switchCounter <= 32'd261) begin\n";
+	code += "			addAns[switchCounter - 32'd213] <= FPAAns3;\n";
 	//code += "			$display(\"%d %b.%b\", switchCounter, FPAAns3[25:18],FPAAns3[17:0]);\n";
 	code += "		end else\n";
-	code += "		if(switchCounter >= 32'd258 && switchCounter <= 32'd269) begin\n";
-	code += "			addAns[switchCounter - 32'd258] <= FPAAns3;\n";
+	code += "		if(switchCounter >= 32'd267 && switchCounter <= 32'd278) begin\n";
+	code += "			addAns[switchCounter - 32'd267] <= FPAAns3;\n";
 	//code += "			$display(\"%d %b.%b\", switchCounter, FPAAns3[25:18],FPAAns3[17:0]);\n";
 	code += "		end else\n";
-	code += "		if(switchCounter >= 32'd273 && switchCounter <= 32'd275) begin\n";
-	code += "			addAns[switchCounter - 32'd273] <= FPAAns3;\n";
+	code += "		if(switchCounter >= 32'd284 && switchCounter <= 32'd286) begin\n";
+	code += "			addAns[switchCounter - 32'd284] <= FPAAns3;\n";
 	//code += "			$display(\"%d %b.%b\", switchCounter, FPAAns3[25:18],FPAAns3[17:0]);\n";
 	code += "		end else\n";
-	code += "		if(switchCounter == 32'd282) begin\n";
+	code += "		if(switchCounter == 32'd292) begin\n";
 	code += "			addAns[0] <= FPAAns3;\n";
 	//code += "			$display(\"%d %b.%b\", switchCounter, FPAAns3[25:18],FPAAns3[17:0]);\n";
 	code += "		end\n";
@@ -232,10 +213,43 @@ int main(int argc, char* argv[]){
 	
 	code_tb += "	for(i = 0; i < 784; i = i+1) begin\n";
 	code_tb += "		A[i%28] = 19'b000_1000_0000_0000_0000;\n";
-	code_tb += " 		B[i%28] = i%2;\n";
-	code_tb += "		if(i%28 == 27) begin \n";
+	code_tb += " 		B[i%28] = (i%3+1);\n";
+	code_tb += "		if(i%4 == 3) begin \n";
 	code_tb += "			#fullclock;\n";
-	code_tb += "		end\n;";
+	code_tb += "		end\n";
+	code_tb += "	end\n";
+	code_tb += "\n";
+
+	code_tb += "	for(i = 0; i < 260; i = i + 1)begin\n";
+	code_tb += "		#fullclock;\n";
+	code_tb += "	end\n";
+	code_tb += "\n";
+
+	code_tb += "	$display(\"%b%b%b%b%b%b%b%b.%b%b%b%b%b%b%b%b%b%b%b%b%b%b%b%b%b%b %d\",\n";
+	code_tb += "		result[25], result[24], result[23], result[22],\n";
+        code_tb += "		result[21], result[20], result[19], result[18],\n";
+        code_tb += "		result[17], result[16], result[15], result[14],\n";
+        code_tb += "		result[13], result[12], result[11], result[10],\n";
+        code_tb += "		result[9], result[8], result[7], result[6],\n";
+        code_tb += "		result[5], result[4], result[3], result[2], result[1],\n";
+        code_tb += "		result[0], result[25:18]);\n";
+	code_tb += "\n";
+
+	code_tb += "	GlobalReset = 1'b0;\n";
+	code_tb += "	#fullclock GlobalReset = 1'b1;\n";
+	code_tb += "\n";
+	
+	code_tb += "	for(i = 0; i < 784; i = i+1) begin\n";
+	code_tb += "		if(i==0)begin\n";
+	code_tb += "			A[i] = 19'b000_1010_0001_1001_0110;\n";
+	code_tb += "			B[i] = 10'b00_0000_0001;\n";
+	code_tb += "		end else begin\n";
+	code_tb += "			A[i%28] = 19'b000_0000_0000_0000_0000;\n";
+	code_tb += " 			B[i%28] = 0;\n";
+	code_tb += "		end\n";
+	code_tb += "		if(i%4 == 3) begin \n";
+	code_tb += "			#fullclock;\n";
+	code_tb += "		end\n";
 	code_tb += "	end\n";
 	code_tb += "\n";
 
@@ -254,6 +268,7 @@ int main(int argc, char* argv[]){
         code_tb += "		result[0], result[25:18]);\n";
 	code_tb += "\n";
 	code_tb += "	$stop;\n";
+
 	code_tb += "end\n";
 	code_tb += "endmodule\n";
 
