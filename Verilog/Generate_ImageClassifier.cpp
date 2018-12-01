@@ -35,7 +35,7 @@ int main(int argc, char* argv[]){
 	}
 	code += "reg[31:0] switchCounter;\n";
 	code += "reg ready;\n";
-	code += "reg internalReset\n;";
+	code += "reg internalReset;\n";
 	code += "wire["+to_string(26*NEURONS-1) + ":0] value;\n";
 	code += "\n";
 
@@ -66,28 +66,28 @@ int main(int argc, char* argv[]){
 	code += "		switchCounter <= 32'd0;\n";
 	code += "		ready <= 1'b0;\n";
 	code += "		internalReset = 1'b0;\n";
-	/*for(int i = 0; i < PIXEL_N+1; i++){
+	for(int i = 0; i < PIXEL_N+1; i++){
 		code += "		PixelsStore[" + to_string(i) + "] <= 10'd0;\n";
 	}
 	for(int i = 0; i < NEURONS; i++){
 		for(int j = 0; j < PIXEL_N+1; j++){
 			code += "		WeightsStore" + to_string(i) + "[" + to_string(j) + "] <= 19'd0;\n";
 		}
-	}*/
+	}
 
 	code += "	end\n";
 	code += "	if(Input_Valid == 1'b1)begin\n";
 	code += "		switchCounter <= 32'd0;\n";
 	code += "		ready <= 1'b0;\n";
 	code += "		internalReset = 1'b0;\n";
-	/*for(int i = 0; i < PIXEL_N+1; i++){
+	for(int i = 0; i < PIXEL_N+1; i++){
 		code += "		PixelsStore[" + to_string(i) + "] <= Pix_" + to_string(i) + ";\n";
 	}
 	for(int i = 0; i < NEURONS; i++){
 		for(int j = 0; j < PIXEL_N+1; j++){
 			code += "		WeightsStore" + to_string(i) + "[" + to_string(j) + "] <= Wgt_" + to_string(i) + "_" + to_string(j) + ";\n";
 		}
-	}*/
+	}
 	code += "	end else begin\n";
 	code += "		internalReset = 1'b1;\n";
 	code += "		switchCounter <= switchCounter + 32'd1;\n";
@@ -97,14 +97,14 @@ int main(int argc, char* argv[]){
 		}else{
 			code += "if(switchCounter == 32'd" + to_string(k*7-1) + ")begin\n";
 		}
-		/*for(int i = 0; i < PIXEL_N/28 && k != 0; i++){
+		for(int i = 0; i < PIXEL_N/28 && k != 0; i++){
 			code += "			PixelsStore[" + to_string(i) + "] <= PixelsStore[" + to_string(k * PIXEL_N/28 + i) + "];\n";
 		}
 		for(int i = 0; i < NEURONS && k != 0; i++){
 			for(int j = 0; j < PIXEL_N/28; j++){
 				code += "			WeightsStore" + to_string(i) + "[" + to_string(j) + "] <= WeightsStore" + to_string(i) + "[" + to_string(k * PIXEL_N/28 + j) + "];\n";
 			}
-		}*/
+		}
 		
 		code += "		end else ";
 	}
