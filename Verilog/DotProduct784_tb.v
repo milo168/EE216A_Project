@@ -16,7 +16,6 @@ parameter fullclock = 2*halfclock;
 
 always #halfclock clk = ~clk;
 
-assign i_w = i;
 
 initial begin
 	GlobalReset = 1'b0;
@@ -24,18 +23,28 @@ initial begin
 
 	#halfclock;
 	#fullclock GlobalReset = 1'b1;
-
+        for(i = 0; i < 28; i = i+1) begin
+		A[i] = 0;
+		B[i] = 0;
+	end
 	for(i = 0; i < 784; i = i+1) begin
-		A[i%28] = 19'b000_1000_0000_0000_0000;
- 		B[i%28] = i%2;
-		if(i%28 == 27) begin 
+		if (i==0) begin
+			A[i] = 19'b0001010000110010110;
+			B[i] = 9'b000000001;
+		end
+		else begin
+		A[i%28] = 19'b000_0000_0000_0000_0000;
+ 		B[i%28] = 0;
+		end
+		//A[i%28] = 19'b000_1000_0000_0000_0000;
+ 		//B[i%28] = i%3;
+		if(i%4 == 3) begin 
 			#fullclock;
 		end
-;	end
+	end
 
 	for(i = 0; i < 260; i = i + 1)begin
 		#fullclock;
-	end
 
 	$display("%b%b%b%b%b%b%b%b.%b%b%b%b%b%b%b%b%b%b%b%b%b%b%b%b%b%b %d",
 		result[25], result[24], result[23], result[22],
@@ -45,7 +54,7 @@ initial begin
 		result[9], result[8], result[7], result[6],
 		result[5], result[4], result[3], result[2], result[1],
 		result[0], result[25:18]);
-
+	end 
 	$stop;
 end
 endmodule
