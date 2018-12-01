@@ -34,13 +34,9 @@ int main(int argc, char* argv[]){
 		code += "reg[18:0] WeightsStore" + to_string(i) + "[0:" + to_string(PIXEL_N) + "];\n";
 	}
 	code += "reg[31:0] switchCounter;\n";
-	code += "reg[25:0] biasTerm[0:" + to_string(NEURONS-1) + "];\n";
-	code += "reg internalReset;\n";
 	code += "reg ready;\n";
-	code += "reg[18:0] inbias;\n";
+	code += "reg internalReset\n;";
 	code += "wire["+to_string(26*NEURONS-1) + ":0] value;\n";
-	code += "wire["+to_string(26*NEURONS-1) + ":0] FinalValue;\n";
-	code += "wire[25:0] biasWire;\n";
 	code += "\n";
 
 	code += "assign Output_Valid = ready;\n";
@@ -55,27 +51,12 @@ int main(int argc, char* argv[]){
 		for(int j = 0; j < PIXEL_N/28; j++){
 			code += "	.Weight" + to_string(j) + "(WeightsStore" + to_string(i) + "[" + to_string(j) + "]),\n";
 		}
+		code += "	.WeightBias(WeightsStore" + to_string(i) + "[" + to_string(PIXEL_N) + "]),\n";
 		code += "	.value(value[" + to_string((i+1)*26-1) + ":" + to_string(i*26) + "])\n";
 		code += "	);\n";
 	}
-	code += "FixedPointMultiplier bias(.clk(clk),\n";
-	code += "	.GlobalReset(~internalReset),\n";
-	code += "	.WeightPort(inbias),\n";
-	code += "	.PixelPort(Pix_784),\n";
-	code += "	.Output_syn(biasWire)\n";
-	code += "	);\n";
-	code +="\n";
-
-	for(int i = 0; i < NEURONS; i++){
-		code += "FixedPointAdder FPA" + to_string(i) + "(.clk(clk),\n";
-		code += "	.GlobalReset(~internalReset),\n";
-		code += "	.Port2(value[" + to_string(26*(i+1)-1) + ":" + to_string(26*i) + "]),\n";
-		code += "	.Port1(biasTerm[" + to_string(i) + "]),\n";
-		code += "	.Output_syn(FinalValue[" + to_string(26*(i+1)-1) + ":" + to_string(26*i) + "])\n";
-		code += "	);\n";
-	}
 	code += "Max max(.GlobalReset(internalReset),\n";
-	code += "	.Num(FinalValue),\n";
+	code += "	.Num(value),\n";
 	code += "	.Index(Image_Number)\n";
 	code += "	);\n";
 	code +="\n";
@@ -83,69 +64,54 @@ int main(int argc, char* argv[]){
 	code += "always@(posedge clk)begin\n";
 	code += "	if(GlobalReset == 1'b0)begin\n";
 	code += "		switchCounter <= 32'd0;\n";
+	code += "		ready <= 1'b0;\n";
 	code += "		internalReset = 1'b0;\n";
-	code += "		ready = 1'b0;\n";
-	code += "		inbias <= 19'd0;\n";
-	for(int i = 0; i < PIXEL_N+1; i++){
+	/*for(int i = 0; i < PIXEL_N+1; i++){
 		code += "		PixelsStore[" + to_string(i) + "] <= 10'd0;\n";
 	}
 	for(int i = 0; i < NEURONS; i++){
 		for(int j = 0; j < PIXEL_N+1; j++){
 			code += "		WeightsStore" + to_string(i) + "[" + to_string(j) + "] <= 19'd0;\n";
 		}
-	}
-	for(int i = 0; i < NEURONS; i++){
-		code += "		biasTerm[" + to_string(i) + "] <= 26'd0;\n";
-	}
-	code += "	end else begin\n";
-	code += "		internalReset = 1'b1;\n";
+	}*/
+
 	code += "	end\n";
 	code += "	if(Input_Valid == 1'b1)begin\n";
 	code += "		switchCounter <= 32'd0;\n";
+	code += "		ready <= 1'b0;\n";
 	code += "		internalReset = 1'b0;\n";
-	code += "		ready = 1'b0;\n";
-	code += "		inbias <= 19'd0;\n";
-	for(int i = 0; i < NEURONS; i++){
-		code += "		biasTerm[" + to_string(i) + "] <= 26'd0;\n";
-	}
-	for(int i = 0; i < PIXEL_N+1; i++){
+	/*for(int i = 0; i < PIXEL_N+1; i++){
 		code += "		PixelsStore[" + to_string(i) + "] <= Pix_" + to_string(i) + ";\n";
 	}
 	for(int i = 0; i < NEURONS; i++){
 		for(int j = 0; j < PIXEL_N+1; j++){
 			code += "		WeightsStore" + to_string(i) + "[" + to_string(j) + "] <= Wgt_" + to_string(i) + "_" + to_string(j) + ";\n";
 		}
-	}
+	}*/
 	code += "	end else begin\n";
 	code += "		internalReset = 1'b1;\n";
 	code += "		switchCounter <= switchCounter + 32'd1;\n";
 	for(int k = 0; k < PIXEL_N/28; k++){
 		if(k == 0){
-			code += "		if(switchCounter == 32'd" + to_string(k) + ")begin\n";
+			code += "		if(switchCounter == 32'd0)begin\n";
 		}else{
-			code += "if(switchCounter == 32'd" + to_string(k) + ")begin\n";
+			code += "if(switchCounter == 32'd" + to_string(k*7-1) + ")begin\n";
 		}
-		if(k < 10){
-			code += "			inbias <= WeightsStore" + to_string(k) + "[784];\n";
-		}
-		if(k >= 7 && k <= 16){
-			code += "			biasTerm[" + to_string(k-7) + "] <= biasWire;\n"; 
-		}
-		for(int i = 0; i < PIXEL_N/28; i++){
+		/*for(int i = 0; i < PIXEL_N/28 && k != 0; i++){
 			code += "			PixelsStore[" + to_string(i) + "] <= PixelsStore[" + to_string(k * PIXEL_N/28 + i) + "];\n";
 		}
-		for(int i = 0; i < NEURONS; i++){
+		for(int i = 0; i < NEURONS && k != 0; i++){
 			for(int j = 0; j < PIXEL_N/28; j++){
 				code += "			WeightsStore" + to_string(i) + "[" + to_string(j) + "] <= WeightsStore" + to_string(i) + "[" + to_string(k * PIXEL_N/28 + j) + "];\n";
 			}
-		}
+		}*/
 		
 		code += "		end else ";
 	}
-	code += "if(switchCounter == 32'd285) begin\n";
-	code += "			ready = 1'b1;\n";
+	code += "if(switchCounter == 32'd299) begin\n";
+	code += "			ready <= 1'b1;\n";
 	for(int i = 0; i < NEURONS; i++){
-		code += "			$display(\"%d %b.%b\", switchCounter, FinalValue[" + to_string(26*(NEURONS-i)-1) + ":" + to_string(26*(NEURONS-i)-8) + "],FinalValue[" + to_string(26*(NEURONS-i)-9) + ":" + to_string(26*(NEURONS-i)-26) + "]);\n";
+		code += "			$display(\"%d %b.%b\", switchCounter, value[" + to_string(26*(NEURONS-i)-1) + ":" + to_string(26*(NEURONS-i)-8) + "],value[" + to_string(26*(NEURONS-i)-9) + ":" + to_string(26*(NEURONS-i)-26) + "]);\n";
 	}
 	code += "		end\n";
 	code += "	end\n";

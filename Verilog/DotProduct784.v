@@ -61,6 +61,7 @@ input [18:0] Weight24,
 input [18:0] Weight25,
 input [18:0] Weight26,
 input [18:0] Weight27,
+input [18:0] WeightBias,
 output [25:0] value
 );
 
@@ -74,6 +75,7 @@ reg[9:0] B1;
 reg[9:0] B2;
 reg[9:0] B3;
 reg[9:0] B4;
+reg[25:0] biasWeight;
 wire[25:0] FPMAns1;
 wire[25:0] FPMAns2;
 wire[25:0] FPMAns3;
@@ -161,6 +163,7 @@ always@(posedge clk)begin
 		B2 <= B[1];
 		B2 <= B[2];
 		B2 <= B[3];
+		biasWeight <= {6'd0,WeightBias};
 		addInput[0] <= 26'd0;
 		addInput[1] <= 26'd0;
 		addInput[2] <= 26'd0;
@@ -412,6 +415,12 @@ always@(posedge clk)begin
  			addInput[1] <= addAns[1];
 			addInput[2] <= addAns[2];
  			addInput[3] <= addAns[48];
+		end else
+		if(switchCounter == 32'd293) begin
+			addInput[0] <= addAns[0];
+ 			addInput[1] <= biasWeight;
+			addInput[2] <= 26'd0;
+ 			addInput[3] <= 26'd0;
 		end 
 		if(switchCounter >= 32'd12 && switchCounter <= 32'd207) begin
 			addAns[switchCounter - 32'd12] <= FPAAns3;
@@ -426,6 +435,9 @@ always@(posedge clk)begin
 			addAns[switchCounter - 32'd284] <= FPAAns3;
 		end else
 		if(switchCounter == 32'd292) begin
+			addAns[0] <= FPAAns3;
+		end else
+		if(switchCounter == 32'd298) begin
 			addAns[0] <= FPAAns3;
 		end
 		switchCounter <= switchCounter + 32'd1;

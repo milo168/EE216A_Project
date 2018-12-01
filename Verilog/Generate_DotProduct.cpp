@@ -24,6 +24,8 @@ int main(int argc, char* argv[]){
 	for(int i = 0; i < PIXEL_N; i++){
 		code += "input [" + to_string(WEIGHT_SIZE-1) + ":0] Weight" + to_string(i) + ",\n";
 	}
+
+	code += "input [" + to_string(WEIGHT_SIZE-1) + ":0] WeightBias,\n";
 	code += "output [25:0] value\n";
 	code += ");\n";
 	code += "\n";
@@ -38,6 +40,9 @@ int main(int argc, char* argv[]){
 	code += "reg[" + to_string(PIXEL_SIZE-1) + ":0] B2;\n";
 	code += "reg[" + to_string(PIXEL_SIZE-1) + ":0] B3;\n";
 	code += "reg[" + to_string(PIXEL_SIZE-1) + ":0] B4;\n";
+
+	code += "reg[25:0] biasWeight;\n";
+
 	code += "wire[25:0] FPMAns1;\n";
 	code += "wire[25:0] FPMAns2;\n";
 	code += "wire[25:0] FPMAns3;\n";
@@ -78,6 +83,7 @@ int main(int argc, char* argv[]){
 	code += "		B2 <= B[1];\n";
 	code += "		B2 <= B[2];\n";
 	code += "		B2 <= B[3];\n";
+	code += "		biasWeight <= {6'd0,WeightBias};\n";
 	code += "		addInput[0] <= 26'd0;\n";
 	code += "		addInput[1] <= 26'd0;\n";
 	code += "		addInput[2] <= 26'd0;\n";
@@ -137,8 +143,13 @@ int main(int argc, char* argv[]){
 	code += " 			addInput[1] <= addAns[1];\n";
 	code += "			addInput[2] <= addAns[2];\n";
 	code += " 			addInput[3] <= addAns[48];\n";
+	code += "		end else\n";
+	code += "		if(switchCounter == 32'd293) begin\n";
+	code += "			addInput[0] <= addAns[0];\n";
+	code += " 			addInput[1] <= biasWeight;\n";
+	code += "			addInput[2] <= 26'd0;\n";
+	code += " 			addInput[3] <= 26'd0;\n";
 	code += "		end \n";
-
 
 	code += "		if(switchCounter >= 32'd12 && switchCounter <= 32'd207) begin\n";
 	code += "			addAns[switchCounter - 32'd12] <= FPAAns3;\n";
@@ -157,6 +168,10 @@ int main(int argc, char* argv[]){
 	//code += "			$display(\"%d %b.%b\", switchCounter, FPAAns3[25:18],FPAAns3[17:0]);\n";
 	code += "		end else\n";
 	code += "		if(switchCounter == 32'd292) begin\n";
+	code += "			addAns[0] <= FPAAns3;\n";
+	//code += "			$display(\"%d %b.%b\", switchCounter, FPAAns3[25:18],FPAAns3[17:0]);\n";
+	code += "		end else\n";
+	code += "		if(switchCounter == 32'd298) begin\n";
 	code += "			addAns[0] <= FPAAns3;\n";
 	//code += "			$display(\"%d %b.%b\", switchCounter, FPAAns3[25:18],FPAAns3[17:0]);\n";
 	code += "		end\n";
@@ -189,6 +204,7 @@ int main(int argc, char* argv[]){
 	for(int i = 0; i < PIXEL_N; i++){
 		code_tb += ".Weight" + to_string(i) + "(A[" + to_string(i) + "]),";
 	}
+	code_tb += ".WeightBias(19'b010_0000_0000_0000_0000),";
 	code_tb += ".value(result));\n";
 	code_tb += "\n";
 
