@@ -7,9 +7,20 @@ module DotProductSt_tb();
     reg[189:0] A;
     reg[99:0] B;
     integer i;
+    integer j;
     wire[9:0] i_w;
+
+    parameter PARALLEL = 1;
     
-    DotProductSt DotProductTest(.clk(clk),
+    DotProductSt #(
+             .PIXEL_N(10),
+             .WEIGHT_SIZE(19),
+             .PIXEL_SIZE(10),
+             .FPM_DELAY  (6),
+             .FPA_DELAY  (2),
+             .PARALLEL   (PARALLEL),
+             .VAL_SIZE   (26))
+             DotProductTest(.clk(clk),
                             .GlobalReset(GlobalReset),
                             .Pixels(B),
                             .Weights(A),
@@ -30,8 +41,11 @@ module DotProductSt_tb();
        #fullclock GlobalReset = 1'b0; 
        
        for(i = 0; i < 10; i = i + 1)begin
-          A[i*19 +: 19] = 19'b010_0000_0000_0000_0000;
-          B[i*10 +: 10] = i;
+          for(j = 0; j < PARALLEL; j = j + 1) begin
+
+             A[j*19 +: 19] = 19'b010_0000_0000_0000_0000;
+             B[j*10 +: 10] = i;
+          #fullclock;
        end
        
        for(i = 0; i < 100; i = i + 1)begin

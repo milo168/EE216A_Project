@@ -9,25 +9,25 @@ module DotProductSt
 (
    input clk,
    input GlobalReset,
-   input [PIXEL_N*PIXEL_SIZE-1:0] Pixels,
-   input [PIXEL_N*WEIGHT_SIZE-1:0] Weights,
+   input [PARALLEL*PIXEL_SIZE-1:0] Pixels,
+   input [PARALLEL*WEIGHT_SIZE-1:0] Weights,
    output [VAL_SIZE-1:0] value
 );
 
    integer  pix_ind [0:PARALLEL-1]; // index of pixel to do
    
-   reg[WEIGHT_SIZE-1:0] A        [0:PARALLEL-1];
-   reg[PIXEL_SIZE-1:0]  B        [0:PARALLEL-1];
-   wire[VAL_SIZE-1:0]   FPMAns   [0:PARALLEL-1];
+   reg[WEIGHT_SIZE-1:0] mulWeight [0:PARALLEL-1];
+   reg[PIXEL_SIZE-1:0]  mulPixel  [0:PARALLEL-1];
+   wire[VAL_SIZE-1:0]   FPMAns    [0:PARALLEL-1];
    reg[VAL_SIZE-1:0]    addInput1 [0:PARALLEL-1];
    reg[VAL_SIZE-1:0]    addInput2 [0:PARALLEL-1];
    reg[VAL_SIZE-1:0]    addInput3 [0:PARALLEL-1];
-   wire[VAL_SIZE-1:0]   FPAAns1  [0:PARALLEL-1];
-   wire[VAL_SIZE-1:0]   FPAAns2  [0:PARALLEL-1];
-   wire[VAL_SIZE-1:0]   FPAAns3  [0:PARALLEL-1];
-   reg[VAL_SIZE-1:0]    sum1     [0:PARALLEL-1];
-   reg[VAL_SIZE-1:0]    sum2     [0:PARALLEL-1];
-   reg[VAL_SIZE-1:0]    sum3     [0:PARALLEL-1];
+   wire[VAL_SIZE-1:0]   FPAAns1   [0:PARALLEL-1];
+   wire[VAL_SIZE-1:0]   FPAAns2   [0:PARALLEL-1];
+   wire[VAL_SIZE-1:0]   FPAAns3   [0:PARALLEL-1];
+   reg[VAL_SIZE-1:0]    sum1      [0:PARALLEL-1];
+   reg[VAL_SIZE-1:0]    sum2      [0:PARALLEL-1];
+   reg[VAL_SIZE-1:0]    sum3      [0:PARALLEL-1];
 
    integer cnt3;
 
@@ -49,8 +49,8 @@ module DotProductSt
    for(i=0; i<PARALLEL; i=i+1) begin:fpgen
       FixedPointMultiplier FPM1(.clk(clk),
                                 .GlobalReset(GlobalReset),
-                                .WeightPort(A[i]),
-                                .PixelPort(B[i]),
+                                .WeightPort(mulWeight[i]),
+                                .PixelPort(mulPixel[i]),
                                 .Output_syn(FPMAns[i]));
                           
       FixedPointAdder      FPA1(.clk(clk),
@@ -86,19 +86,13 @@ module DotProductSt
             sum1[j] <= 0;
             sum2[j] <= 0;
             sum3[j] <= 0;
-            pix_ind[j] <= j*PIXEL_N/PARALLEL;
             cnt3 <= 0;
             //$display("RESET AT: %g",$time);
          end
          else begin
-            if(pix_ind[j] >= (j+1)*PIXEL_N/PARALLEL) begin // FINISH
-               A[j] <= 0;
-               B[j] <= 0;
-            end
             else begin
-               A[j] <= Weights[pix_ind[j]*WEIGHT_SIZE +: WEIGHT_SIZE];
-               B[j] <= Pixels [pix_ind[j]*PIXEL_SIZE  +: PIXEL_SIZE];
-               pix_ind[j] = pix_ind[j] + 1;
+               mulWeight[j] <= Weights[j*WEIGHT_SIZE +: WEIGHT_SIZE];
+               mulPixel[j] <= Pixels [j*PIXEL_SIZE  +: PIXEL_SIZE];
             end
             case(cnt3)
                0: begin
