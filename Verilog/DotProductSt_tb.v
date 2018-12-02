@@ -7,7 +7,7 @@ module DotProductSt_tb();
     parameter PIXEL_SIZE = 10;
     parameter FPM_DELAY = 6;
     parameter FPA_DELAY = 2;
-    parameter PARALLEL = 1;
+    parameter PARALLEL = 2;
     parameter BUS_WIDTH = 1;
     parameter VAL_SIZE = 26;
 
@@ -50,7 +50,7 @@ module DotProductSt_tb();
         for(i = 0; i < PIXEL_N; i = i + 1)begin
             for(j = 0; j < PARALLEL; j = j + 1) begin
                 for(k = 0; k < BUS_WIDTH; k = k + 1) begin
-                    A[(j*WEIGHT_SIZE + k*WEIGHT_SIZE) +: WEIGHT_SIZE] = WEIGHT_SIZE'b010_0000_0000_0000_0000;
+                    A[(j*WEIGHT_SIZE + k*WEIGHT_SIZE) +: WEIGHT_SIZE] = 19'b010_0000_0000_0000_0000;
                     B[(j*PIXEL_SIZE + k*PIXEL_SIZE) +: PIXEL_SIZE] = i;
                 end
             end

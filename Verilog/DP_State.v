@@ -98,6 +98,7 @@ module DotProductSt
             sum2[j] <= 0;
             sum3[j] <= 0;
             cnt3 <= 0;
+	    width_cnt <= 0;
             //$display("RESET AT: %g",$time);
          end
          else begin
