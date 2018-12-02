@@ -1,3 +1,13 @@
+`define CLOG2(x) \
+   (x <= 2) ? 1 : \
+   (x <= 4) ? 2 : \
+   (x <= 8) ? 3 : \
+   (x <= 16) ? 4 : \
+   (x <= 32) ? 5 : \
+   (x <= 64) ? 6 : \
+   (x <= 128) ? 7 : \
+   -1
+
 module DotProductSt
 #(parameter PIXEL_N = 10,
   parameter WEIGHT_SIZE = 19,
@@ -5,12 +15,13 @@ module DotProductSt
   parameter FPM_DELAY = 6,
   parameter FPA_DELAY = 2,
   parameter PARALLEL = 2, 
+  parameter BUS_WIDTH = 1,
   parameter VAL_SIZE = 26)
 (
    input clk,
    input GlobalReset,
-   input [PARALLEL*PIXEL_SIZE-1:0] Pixels,
-   input [PARALLEL*WEIGHT_SIZE-1:0] Weights,
+   input [BUS_WIDTH*PARALLEL*PIXEL_SIZE-1:0] Pixels,
+   input [BUS_WIDTH*PARALLEL*WEIGHT_SIZE-1:0] Weights,
    output [VAL_SIZE-1:0] value
 );
 
@@ -29,8 +40,8 @@ module DotProductSt
    reg[VAL_SIZE-1:0]    sum2      [0:PARALLEL-1];
    reg[VAL_SIZE-1:0]    sum3      [0:PARALLEL-1];
 
-   integer cnt3;
-
+   reg[1:0] cnt3;
+   reg[`CLOG2(BUS_WIDTH):0] width_cnt;
 
    reg[VAL_SIZE-1:0]    sum_o;
    integer h;
@@ -90,8 +101,8 @@ module DotProductSt
             //$display("RESET AT: %g",$time);
          end
          else begin
-            mulWeight[j] <= Weights[j*WEIGHT_SIZE +: WEIGHT_SIZE];
-            mulPixel[j] <= Pixels [j*PIXEL_SIZE  +: PIXEL_SIZE];
+            mulWeight[j] <= Weights[(j*WEIGHT_SIZE + width_cnt*WEIGHT_SIZE) +: WEIGHT_SIZE];
+            mulPixel[j] <= Pixels [(j*PIXEL_SIZE + width_cnt*PIXEL_SIZE) +: PIXEL_SIZE];
             case(cnt3)
                0: begin
                   addInput1[j] <= FPMAns[j];
@@ -112,10 +123,18 @@ module DotProductSt
             sum1[j] <= FPAAns1[j];
             sum2[j] <= FPAAns2[j];
             sum3[j] <= FPAAns3[j];
+
+            // increment cnt3
             if(cnt3 == 2)
                cnt3 <= 0;
             else
                cnt3 <= cnt3 + 1;
+
+            // increment width_cnt
+            if(width_cnt == BUS_WIDTH-1)
+               width_cnt <= 0;
+            else
+               width_cnt <= width_cnt + 1;
          end
       end
    end
