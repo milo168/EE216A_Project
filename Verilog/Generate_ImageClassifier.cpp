@@ -96,7 +96,7 @@ end\n\n";
 	}
 
 	code += "\n	end\n";
-	code += "	if(Input_Valid == 1'b1)begin\n";
+	code += "	else if(Input_Valid == 1'b1)begin\n";
 	code += "		switchCounter <= 32'd0;\n";
 	code += "		ready = 1'b0;\n";
 	code += "		internalReset = 1'b0;\n		";
@@ -109,7 +109,10 @@ end\n\n";
 			code += "WeightsStore[" + to_string(i) + "][" + to_string(j) + "*WEIGHT_SIZE+:WEIGHT_SIZE]<=Wgt_" + to_string(i) + "_" + to_string(j) + ";";
 		}
 	}
-	code += "\n   end\n";/*
+	code += "\n\tend\n";
+	code += "\telse begin\n";
+	code += "\tend\n";
+	/*
 	code += "	end else begin\n";
 	code += "		internalReset = 1'b1;\n";
 	code += "		switchCounter <= switchCounter + 32'd1;\n";
@@ -130,14 +133,14 @@ end\n\n";
 		
 		code += "		end else ";
 	}*/
-	/*
+	
 	code += "if(switchCounter == 32'd299) begin\n";
 	code += "			ready = 1'b1;\n";
 	for(int i = 0; i < NEURONS; i++){
 		code += "			$display(\"%d %b.%b\", switchCounter, value[" + to_string(26*(NEURONS-i)-1) + ":" + to_string(26*(NEURONS-i)-8) + "],value[" + to_string(26*(NEURONS-i)-9) + ":" + to_string(26*(NEURONS-i)-26) + "]);\n";
 	}
 	code += "		end\n";
-	code += "	end\n";*/
+	code += "	end\n";
 	code += "end\n";
 
 
@@ -228,7 +231,7 @@ end\n\n";
 
 	ofstream writeFile1;
 	ofstream writeFile2;
-	writeFile1.open("Image_Classifier.v");
+	writeFile1.open("Image_Classifier1.v");
 	writeFile2.open("Image_Classifier_tb.v");
 	writeFile1 << code;
 	writeFile2 << code_tb;
