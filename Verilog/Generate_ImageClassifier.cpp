@@ -6,42 +6,43 @@ using namespace std;
 int main(int argc, char* argv[]){
 	string code = "";
 	string code_tb = "";
-	int PIXEL_N = 784;
+	int PIXEL_N = 785;
 	int WEIGHT_SIZE = 19;
 	int PIXEL_SIZE = 10;
 	int NEURONS = 10;
 
 	//ImageClassifier automated code goes here
-	code += "module Image_Classifier(\n";
-	code += "input clk,\n";
+	code += "module Image_Classifier\n";
+	code += "#(parameter NEURONS = 10,\n  parameter PIXEL_N = 785,\n  parameter WEIGHT_SIZE = 19,\n  parameter PIXEL_SIZE = 10,\n  parameter FPM_DELAY = 6,\n";
+  	code += "  parameter FPA_DELAY = 2,\n  parameter PARALLEL = 2,\n  parameter BUS_WIDTH = 1,\n  parameter VAL_SIZE = 26)";
+	code += "\n(\ninput clk,\n";
 	code += "input GlobalReset,\n";
 	code += "input Input_Valid,\n";
 	for(int i = 0; i < NEURONS; i++){
-		for(int j = 0; j < PIXEL_N+1; j++){
-			code += "input [" + to_string(WEIGHT_SIZE-1) + ":0] Wgt_" + to_string(i) + "_" + to_string(j) + ",\n";
+		for(int j = 0; j < PIXEL_N; j++){
+			code += "input [WEIGHT_SIZE-1:0] Wgt_" + to_string(i) + "_" + to_string(j) + ",";
 		}
 	}
-	for(int i = 0; i < PIXEL_N+1; i++){
-		code += "input [" + to_string(PIXEL_SIZE-1) + ":0] Pix_" + to_string(i) + ",\n";
+	code += "\n";
+	for(int i = 0; i < PIXEL_N; i++){
+		code += "input [PIXEL_SIZE-1:0] Pix_" + to_string(i) + ",";
 	}
-	code += "output [3:0] Image_Number,\n";
+	code += "\noutput [3:0] Image_Number,\n";
 	code += "output Output_Valid\n";
 	code += ");\n";
 	code += "\n";
 	
-	code += "reg[9:0] PixelsStore[0:" + to_string(PIXEL_N) + "];\n";
-	for(int i = 0; i < NEURONS; i++){
-		code += "reg[18:0] WeightsStore" + to_string(i) + "[0:" + to_string(PIXEL_N) + "];\n";
-	}
+	code += "reg[PIXEL_SIZE-1:0] PixelsStore[0:PIXEL_N-1];\n";
+	code += "reg[WEIGHT_SIZE-1:0] WeightsStore[0:PIXEL_N-1][0:NEURONS-1];\n";
 	code += "reg[31:0] switchCounter;\n";
 	code += "reg ready;\n";
 	code += "reg internalReset;\n";
-	code += "wire["+to_string(26*NEURONS-1) + ":0] value;\n";
+	code += "wire[VAL_SIZE*NEURONS-1:0] value;\n";
 	code += "\n";
 
 	code += "assign Output_Valid = ready;\n";
 	code += "\n";
-
+/*
 	for(int i = 0; i < NEURONS; i++){
 		code += "DotProduct784 DP" + to_string(i) + "(.clk(clk),\n";
 		code += "	.GlobalReset(internalReset),\n";
@@ -54,40 +55,44 @@ int main(int argc, char* argv[]){
 		code += "	.WeightBias(WeightsStore" + to_string(i) + "[" + to_string(PIXEL_N) + "]),\n";
 		code += "	.value(value[" + to_string((i+1)*26-1) + ":" + to_string(i*26) + "])\n";
 		code += "	);\n";
-	}
+	}*/
+	/*
 	code += "Max max(.GlobalReset(internalReset),\n";
 	code += "	.Num(value),\n";
 	code += "	.Index(Image_Number)\n";
 	code += "	);\n";
 	code +="\n";
-	
+	*/
 	code += "always@(posedge clk)begin\n";
 	code += "	if(GlobalReset == 1'b0)begin\n";
-	code += "		switchCounter <= 32'd0;\n";
+	code += "		switchCounter <= 0;\n";
 	code += "		ready = 1'b0;\n";
-	code += "		internalReset = 1'b0;\n";
-	for(int i = 0; i < PIXEL_N+1; i++){
-		code += "		PixelsStore[" + to_string(i) + "] <= 10'd0;\n";
+	code += "		internalReset = 1'b0;\n		";
+	for(int i = 0; i < PIXEL_N; i++){
+		code += "PixelsStore[" + to_string(i) + "]<=0;";
 	}
+	code += "\n		";
 	for(int i = 0; i < NEURONS; i++){
-		for(int j = 0; j < PIXEL_N+1; j++){
-			code += "		WeightsStore" + to_string(i) + "[" + to_string(j) + "] <= 19'd0;\n";
+		for(int j = 0; j < PIXEL_N; j++){
+			code += "WeightsStore[" + to_string(i) + "][" + to_string(j) + "]<=0;";
 		}
 	}
 
-	code += "	end\n";
+	code += "\n	end\n";
 	code += "	if(Input_Valid == 1'b1)begin\n";
 	code += "		switchCounter <= 32'd0;\n";
 	code += "		ready = 1'b0;\n";
-	code += "		internalReset = 1'b0;\n";
-	for(int i = 0; i < PIXEL_N+1; i++){
-		code += "		PixelsStore[" + to_string(i) + "] <= Pix_" + to_string(i) + ";\n";
+	code += "		internalReset = 1'b0;\n		";
+	for(int i = 0; i < PIXEL_N; i++){
+		code += "PixelsStore[" + to_string(i) + "]<=Pix_" + to_string(i) + ";";
 	}
+	code += "\n		";
 	for(int i = 0; i < NEURONS; i++){
-		for(int j = 0; j < PIXEL_N+1; j++){
-			code += "		WeightsStore" + to_string(i) + "[" + to_string(j) + "] <= Wgt_" + to_string(i) + "_" + to_string(j) + ";\n";
+		for(int j = 0; j < PIXEL_N; j++){
+			code += "WeightsStore[" + to_string(i) + "][" + to_string(j) + "]<=Wgt_" + to_string(i) + "_" + to_string(j) + ";";
 		}
 	}
+	code += "\n   end\n";/*
 	code += "	end else begin\n";
 	code += "		internalReset = 1'b1;\n";
 	code += "		switchCounter <= switchCounter + 32'd1;\n";
@@ -107,15 +112,17 @@ int main(int argc, char* argv[]){
 		}
 		
 		code += "		end else ";
-	}
+	}*/
+	/*
 	code += "if(switchCounter == 32'd299) begin\n";
 	code += "			ready = 1'b1;\n";
 	for(int i = 0; i < NEURONS; i++){
 		code += "			$display(\"%d %b.%b\", switchCounter, value[" + to_string(26*(NEURONS-i)-1) + ":" + to_string(26*(NEURONS-i)-8) + "],value[" + to_string(26*(NEURONS-i)-9) + ":" + to_string(26*(NEURONS-i)-26) + "]);\n";
 	}
 	code += "		end\n";
-	code += "	end\n";
+	code += "	end\n";*/
 	code += "end\n";
+
 
 	code += "endmodule\n";
 

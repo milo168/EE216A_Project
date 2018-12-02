@@ -140,5 +140,4 @@ module DotProductSt
       end
    end
 
-
 endmodule
