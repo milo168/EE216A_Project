@@ -98,7 +98,7 @@ module DotProductSt
             sum2[j] <= 0;
             sum3[j] <= 0;
             cnt3 <= 0;
-	    width_cnt <= 0;
+            width_cnt <= 0;
             //$display("RESET AT: %g",$time);
          end
          else begin
@@ -107,20 +107,20 @@ module DotProductSt
             case(cnt3)
                0: begin
                   addInput1[j] <= FPMAns[j];
-               end // 0:
+               end
 
                1: begin
                   addInput2[j] <= FPMAns[j];
-               end // 1:
+               end
 
                2: begin
                   addInput3[j] <= FPMAns[j];
-               end // 2:
+               end
 
                default: begin
 
                end // default:
-            endcase // pix_ind[j] % 3
+            endcase
             sum1[j] <= FPAAns1[j];
             sum2[j] <= FPAAns2[j];
             sum3[j] <= FPAAns3[j];

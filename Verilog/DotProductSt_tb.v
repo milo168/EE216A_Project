@@ -7,15 +7,17 @@ module DotProductSt_tb();
     parameter PIXEL_SIZE = 10;
     parameter FPM_DELAY = 6;
     parameter FPA_DELAY = 2;
-    parameter PARALLEL = 2;
+    parameter PARALLEL = 1;
     parameter BUS_WIDTH = 1;
     parameter VAL_SIZE = 26;
 
     reg clk;
     reg GlobalReset;
     wire[VAL_SIZE-1:0] result;
-    reg[BUS_WIDTH*PARALLEL*WEIGHT_SIZE-1:0] A;
-    reg[BUS_WIDTH*PARALLEL*PIXEL_SIZE-1:0] B;
+    reg[BUS_WIDTH*PARALLEL*PIXEL_SIZE-1:0] A;
+    reg[BUS_WIDTH*PARALLEL*WEIGHT_SIZE-1:0] B;
+    reg[PIXEL_N*PIXEL_SIZE-1:0] Pixels;
+    reg[PIXEL_N*WEIGHT_SIZE-1:0] Weights;
     integer i;
     integer j;
     integer k;
@@ -31,8 +33,8 @@ module DotProductSt_tb();
        .VAL_SIZE   (VAL_SIZE))
     DotProductTest(.clk(clk),
         .GlobalReset(GlobalReset),
-        .Pixels(B),
-        .Weights(A),
+        .Pixels(A),
+        .Weights(B),
         .value(result));
     
     parameter halfclock = 1;
@@ -45,13 +47,24 @@ module DotProductSt_tb();
         clk = 1'b1;
 
         #halfclock;
-        #fullclock GlobalReset = 1'b0; 
+        #fullclock GlobalReset = 1'b0;
+        for(i = 0; i < PIXEL_N; i = i + 1) begin
+            Pixels[i*PIXEL_SIZE +: PIXEL_SIZE] = i;
+            Weights[i*WEIGHT_SIZE +: WEIGHT_SIZE] = 19'b010_0000_0000_0000_0000;
+        end
 
-        for(i = 0; i < PIXEL_N; i = i + 1)begin
+        while(i < PIXEL_N) begin
             for(j = 0; j < PARALLEL; j = j + 1) begin
                 for(k = 0; k < BUS_WIDTH; k = k + 1) begin
-                    A[(j*WEIGHT_SIZE + k*WEIGHT_SIZE) +: WEIGHT_SIZE] = 19'b010_0000_0000_0000_0000;
-                    B[(j*PIXEL_SIZE + k*PIXEL_SIZE) +: PIXEL_SIZE] = i;
+                    if(i < PIXEL_N) begin
+                        A[(j*WEIGHT_SIZE + k*WEIGHT_SIZE) +: WEIGHT_SIZE] = Pixels[i*PIXEL_SIZE +: PIXEL_SIZE];
+                        B[(j*PIXEL_SIZE + k*PIXEL_SIZE) +: PIXEL_SIZE] = Weights[i*WEIGHT_SIZE +: WEIGHT_SIZE];
+                        i = i + 1;
+                    end
+                    else begin
+                        A[(j*WEIGHT_SIZE + k*WEIGHT_SIZE) +: WEIGHT_SIZE] = 0;
+                        B[(j*PIXEL_SIZE + k*PIXEL_SIZE) +: PIXEL_SIZE] = 0;
+                    end
                 end
             end
             #(BUS_WIDTH*fullclock);
