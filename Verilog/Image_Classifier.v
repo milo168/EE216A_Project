@@ -37,7 +37,7 @@ for(i=0; i<NEURONS; i=i+1) begin:dpgen
                    .GlobalReset(GlobalReset),
                    .Pixels(PixelsStore[BUS_WIDTH*PARALLEL*PIXEL_SIZE-1:0]),
                    .Weights(WeightsStore[i][BUS_WIDTH*PARALLEL*WEIGHT_SIZE-1:0]),
-                   .value(result));
+                   .value(value[VAL_SIZE*i :+ VAL_SIZE]));
 end
 
 always@(posedge clk)begin

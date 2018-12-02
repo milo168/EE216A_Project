@@ -53,7 +53,7 @@ for(i=0; i<NEURONS; i=i+1) begin:dpgen\n\
                    .GlobalReset(GlobalReset),\n\
                    .Pixels(PixelsStore[BUS_WIDTH*PARALLEL*PIXEL_SIZE-1:0]),\n\
                    .Weights(WeightsStore[i][BUS_WIDTH*PARALLEL*WEIGHT_SIZE-1:0]),\n\
-                   .value(result));\n\
+                   .value(value[VAL_SIZE*i :+ VAL_SIZE]));\n\
 end\n\n";
 /*
 	for(int i = 0; i < NEURONS; i++){
