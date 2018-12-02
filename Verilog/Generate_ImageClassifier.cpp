@@ -32,8 +32,8 @@ int main(int argc, char* argv[]){
 	code += ");\n";
 	code += "\n";
 	
-	code += "reg[PIXEL_SIZE-1:0] PixelsStore[0:PIXEL_N-1];\n";
-	code += "reg[WEIGHT_SIZE-1:0] WeightsStore[0:PIXEL_N-1][0:NEURONS-1];\n";
+	code += "reg[PIXEL_SIZE*PIXEL_N-1:0] PixelsStore;\n";
+	code += "reg[WEIGHT_SIZE*PIXEL_N-1:0] WeightsStore[0:NEURONS-1];\n";
 	code += "reg[31:0] switchCounter;\n";
 	code += "reg ready;\n";
 	code += "reg internalReset;\n";
@@ -42,6 +42,19 @@ int main(int argc, char* argv[]){
 
 	code += "assign Output_Valid = ready;\n";
 	code += "\n";
+
+	code += "genvar i;\n\
+for(i=0; i<NEURONS; i=i+1) begin:dpgen\n\
+    DotProductSt #(.PIXEL_N   (PIXEL_N),    .WEIGHT_SIZE(WEIGHT_SIZE),\n\
+                   .PIXEL_SIZE(PIXEL_SIZE), .FPM_DELAY  (FPM_DELAY),\n\
+                   .FPA_DELAY  (FPA_DELAY), .PARALLEL   (PARALLEL),\n\
+                   .BUS_WIDTH  (BUS_WIDTH), .VAL_SIZE   (VAL_SIZE))\n\
+                DP(.clk(clk),\n\
+                   .GlobalReset(GlobalReset),\n\
+                   .Pixels(PixelsStore[BUS_WIDTH*PARALLEL*PIXEL_SIZE-1:0]),\n\
+                   .Weights(WeightsStore[i][BUS_WIDTH*PARALLEL*WEIGHT_SIZE-1:0]),\n\
+                   .value(result));\n\
+end\n\n";
 /*
 	for(int i = 0; i < NEURONS; i++){
 		code += "DotProduct784 DP" + to_string(i) + "(.clk(clk),\n";
@@ -68,14 +81,18 @@ int main(int argc, char* argv[]){
 	code += "		switchCounter <= 0;\n";
 	code += "		ready = 1'b0;\n";
 	code += "		internalReset = 1'b0;\n		";
-	for(int i = 0; i < PIXEL_N; i++){
+	/*for(int i = 0; i < PIXEL_N; i++){
 		code += "PixelsStore[" + to_string(i) + "]<=0;";
-	}
-	code += "\n		";
-	for(int i = 0; i < NEURONS; i++){
+	}*/
+	code += "PixelsStore<=0;\n";
+	code += "		";
+	/*for(int i = 0; i < NEURONS; i++){
 		for(int j = 0; j < PIXEL_N; j++){
 			code += "WeightsStore[" + to_string(i) + "][" + to_string(j) + "]<=0;";
 		}
+	}*/
+	for(int j = 0; j < NEURONS; j++){
+		code += "WeightsStore[" + to_string(j) + "]<=0;";
 	}
 
 	code += "\n	end\n";
@@ -84,12 +101,12 @@ int main(int argc, char* argv[]){
 	code += "		ready = 1'b0;\n";
 	code += "		internalReset = 1'b0;\n		";
 	for(int i = 0; i < PIXEL_N; i++){
-		code += "PixelsStore[" + to_string(i) + "]<=Pix_" + to_string(i) + ";";
+		code += "PixelsStore[" + to_string(i) + "*PIXEL_SIZE+:PIXEL_SIZE]<=Pix_" + to_string(i) + ";";
 	}
 	code += "\n		";
 	for(int i = 0; i < NEURONS; i++){
 		for(int j = 0; j < PIXEL_N; j++){
-			code += "WeightsStore[" + to_string(i) + "][" + to_string(j) + "]<=Wgt_" + to_string(i) + "_" + to_string(j) + ";";
+			code += "WeightsStore[" + to_string(i) + "][" + to_string(j) + "*WEIGHT_SIZE+:WEIGHT_SIZE]<=Wgt_" + to_string(i) + "_" + to_string(j) + ";";
 		}
 	}
 	code += "\n   end\n";/*
