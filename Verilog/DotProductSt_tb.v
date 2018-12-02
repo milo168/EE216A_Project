@@ -2,12 +2,12 @@
 
 module DotProductSt_tb();
 
-    parameter PIXEL_N = 10;
+    parameter PIXEL_N = 785;
     parameter WEIGHT_SIZE = 19;
     parameter PIXEL_SIZE = 10;
     parameter FPM_DELAY = 6;
     parameter FPA_DELAY = 2;
-    parameter PARALLEL = 1;
+    parameter PARALLEL = 4;
     parameter BUS_WIDTH = 1;
     parameter VAL_SIZE = 26;
 
@@ -49,8 +49,8 @@ module DotProductSt_tb();
         #halfclock;
         #fullclock GlobalReset = 1'b0;
         for(i = 0; i < PIXEL_N; i = i + 1) begin
-            Pixels[i*PIXEL_SIZE +: PIXEL_SIZE] = i;
-            Weights[i*WEIGHT_SIZE +: WEIGHT_SIZE] = 19'b010_0000_0000_0000_0000;
+            Pixels[i*PIXEL_SIZE +: PIXEL_SIZE] = i%3;
+            Weights[i*WEIGHT_SIZE +: WEIGHT_SIZE] = 19'b000_1000_0000_0000_0000;
         end
 
         i = 0;
@@ -74,15 +74,15 @@ module DotProductSt_tb();
         A = 0;
         B = 0;
 
-        for(i = 0; i < 100; i = i + 1)begin
-            $display("%b%b%b%b%b%b%b%b.%b%b%b%b%b%b%b%b%b%b%b%b%b%b%b%b%b%b %b %d",
+        for(i = 0; i < 30; i = i + 1)begin
+            $display("%b%b%b%b%b%b%b%b.%b%b%b%b%b%b%b%b%b%b%b%b%b%b%b%b%b%b %d %d",
                         result[25], result[24], result[23], result[22], 
                         result[21], result[20], result[19], result[18],
                         result[17], result[16], result[15], result[14],
                         result[13], result[12], result[11], result[10],
                         result[9], result[8], result[7], result[6],
                         result[5], result[4], result[3], result[2], result[1],
-                        result[0], B[i], i);
+                        result[0], result[25:18], i);
             #fullclock; 
         end
 
