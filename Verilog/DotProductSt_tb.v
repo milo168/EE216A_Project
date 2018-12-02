@@ -14,8 +14,8 @@ module DotProductSt_tb();
     reg clk;
     reg GlobalReset;
     wire[VAL_SIZE-1:0] result;
-    reg[BUS_WIDTH*PARALLEL*PIXEL_SIZE-1:0] A;
-    reg[BUS_WIDTH*PARALLEL*WEIGHT_SIZE-1:0] B;
+    reg[BUS_WIDTH*PARALLEL*WEIGHT_SIZE-1:0] A;
+    reg[BUS_WIDTH*PARALLEL*PIXEL_SIZE-1:0] B;
     reg[PIXEL_N*PIXEL_SIZE-1:0] Pixels;
     reg[PIXEL_N*WEIGHT_SIZE-1:0] Weights;
     integer i;
@@ -33,8 +33,8 @@ module DotProductSt_tb();
        .VAL_SIZE   (VAL_SIZE))
     DotProductTest(.clk(clk),
         .GlobalReset(GlobalReset),
-        .Pixels(A),
-        .Weights(B),
+        .Pixels(B),
+        .Weights(A),
         .value(result));
     
     parameter halfclock = 1;
@@ -53,12 +53,13 @@ module DotProductSt_tb();
             Weights[i*WEIGHT_SIZE +: WEIGHT_SIZE] = 19'b010_0000_0000_0000_0000;
         end
 
-        while(i < PIXEL_N) begin
+        i = 0;
+	while(i < PIXEL_N) begin
             for(j = 0; j < PARALLEL; j = j + 1) begin
                 for(k = 0; k < BUS_WIDTH; k = k + 1) begin
                     if(i < PIXEL_N) begin
-                        A[(j*WEIGHT_SIZE + k*WEIGHT_SIZE) +: WEIGHT_SIZE] = Pixels[i*PIXEL_SIZE +: PIXEL_SIZE];
-                        B[(j*PIXEL_SIZE + k*PIXEL_SIZE) +: PIXEL_SIZE] = Weights[i*WEIGHT_SIZE +: WEIGHT_SIZE];
+                        A[(j*WEIGHT_SIZE + k*WEIGHT_SIZE) +: WEIGHT_SIZE] = Weights[i*WEIGHT_SIZE +: WEIGHT_SIZE];
+                        B[(j*PIXEL_SIZE + k*PIXEL_SIZE) +: PIXEL_SIZE] = Pixels[i*PIXEL_SIZE +: PIXEL_SIZE];
                         i = i + 1;
                     end
                     else begin
