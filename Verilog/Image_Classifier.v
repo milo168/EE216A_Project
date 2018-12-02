@@ -18,8 +18,8 @@ module Image_Classifier
   parameter PIXEL_SIZE = 10,
   parameter FPM_DELAY = 6,
   parameter FPA_DELAY = 2,
-  parameter PARALLEL = 2,
-  parameter BUS_WIDTH = 1,
+  parameter PARALLEL = 4,
+  parameter BUS_WIDTH = 7,
   parameter VAL_SIZE = 26)
 (
 input clk,
@@ -33,7 +33,7 @@ output Output_Valid
 
 reg[PIXEL_SIZE*PIXEL_N-1:0] PixelsStore;
 reg[WEIGHT_SIZE*PIXEL_N-1:0] WeightsStore[0:NEURONS-1];
-reg[`CLOG2(PIXEL_N)-1:0] switchCounter;
+reg[31:0] switchCounter;
 reg[`CLOG2(BUS_WIDTH)-1:0] busCounter;
 reg[`CLOG2(PIXEL_N/BUS_WIDTH/PARALLEL)-1:0] shiftCounter;
 reg ready;
@@ -45,8 +45,8 @@ integer j;
 
 assign Output_Valid = ready;
 
-genvar i;
-for(i=0; i<NEURONS; i=i+1) begin:dpgen
+genvar k;
+for(k=0; k<NEURONS; k=k+1) begin:dpgen
     DotProductSt #(.PIXEL_N   (PIXEL_N),    .WEIGHT_SIZE(WEIGHT_SIZE),
                    .PIXEL_SIZE(PIXEL_SIZE), .FPM_DELAY  (FPM_DELAY),
                    .FPA_DELAY  (FPA_DELAY), .PARALLEL   (PARALLEL),
@@ -54,8 +54,8 @@ for(i=0; i<NEURONS; i=i+1) begin:dpgen
                 DP(.clk(clk),
                    .GlobalReset(GlobalReset),
                    .Pixels(PixelsStore[BUS_WIDTH*PARALLEL*PIXEL_SIZE-1:0]),
-                   .Weights(WeightsStore[i][BUS_WIDTH*PARALLEL*WEIGHT_SIZE-1:0]),
-                   .value(value[VAL_SIZE*i +: VAL_SIZE]));
+                   .Weights(WeightsStore[k][BUS_WIDTH*PARALLEL*WEIGHT_SIZE-1:0]),
+                   .value(value[VAL_SIZE*k +: VAL_SIZE]));
 end
 
 always@(posedge clk)begin
@@ -64,7 +64,7 @@ always@(posedge clk)begin
         busCounter <= 0;
         shiftCounter <= 0;
 		ready = 1'b0;
-		internalReset = 1'b0;
+		internalReset = 1'b1;
 		PixelsStore<=0;
 		WeightsStore[0]<=0;WeightsStore[1]<=0;WeightsStore[2]<=0;WeightsStore[3]<=0;WeightsStore[4]<=0;WeightsStore[5]<=0;WeightsStore[6]<=0;WeightsStore[7]<=0;WeightsStore[8]<=0;WeightsStore[9]<=0;
 	end
@@ -85,7 +85,7 @@ always@(posedge clk)begin
             end
             for(j=0; j<NEURONS; j=j+1) begin
                 for(i=0; i<PIXEL_N/PARALLEL/BUS_WIDTH-1; i=i+1) begin
-                    WeightsStore[j][i*BUS_WIDTH*PARALLEL*WEIGHTS_SIZE +: BUS_WIDTH*PARALLEL*WEIGHTS_SIZE] = WeightsStore[j][(i+1)*BUS_WIDTH*PARALLEL*WEIGHTS_SIZE +: BUS_WIDTH*PARALLEL*WEIGHTS_SIZE];
+                    WeightsStore[j][i*BUS_WIDTH*PARALLEL*WEIGHT_SIZE +: BUS_WIDTH*PARALLEL*WEIGHT_SIZE] = WeightsStore[j][(i+1)*BUS_WIDTH*PARALLEL*WEIGHT_SIZE +: BUS_WIDTH*PARALLEL*WEIGHT_SIZE];
                 end
             end
             busCounter <= 0;
@@ -100,7 +100,7 @@ always@(posedge clk)begin
         if(switchCounter < 20) begin
             switchCounter <= switchCounter + 1;
         end
-        else begin
+        else if(switchCounter==20) begin
             ready <= 1'b1;
             $display("%d %b.%b", switchCounter, value[259:252],value[251:234]);
             $display("%d %b.%b", switchCounter, value[233:226],value[225:208]);
