@@ -4,8 +4,8 @@ module DotProductSt_tb();
     reg clk;
     reg GlobalReset;
     wire[25:0] result;
-    reg[189:0] A;
-    reg[99:0] B;
+    reg[18:0] A;
+    reg[9:0] B;
     integer i;
     integer j;
     wire[9:0] i_w;
@@ -45,8 +45,12 @@ module DotProductSt_tb();
 
              A[j*19 +: 19] = 19'b010_0000_0000_0000_0000;
              B[j*10 +: 10] = i;
+	  end
           #fullclock;
        end
+
+       A = 0;
+       B = 0;
        
        for(i = 0; i < 100; i = i + 1)begin
           $display("%b%b%b%b%b%b%b%b.%b%b%b%b%b%b%b%b%b%b%b%b%b%b%b%b%b%b %b %d",

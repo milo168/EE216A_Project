@@ -31,7 +31,7 @@ initial begin
 		if(i%28 == 27) begin 
 			#fullclock;
 		end
-;	end
+	end
 
 	for(i = 0; i < 260; i = i + 1)begin
 		#fullclock;

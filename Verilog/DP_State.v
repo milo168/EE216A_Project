@@ -76,8 +76,8 @@ module DotProductSt
       always@(posedge clk, posedge GlobalReset)begin
          if(GlobalReset == 1'b1) begin
             // inputs to multipliers
-            A[j] <= 0;
-            B[j] <= 0;
+            mulWeight[j] <= 0;
+            mulPixel[j] <= 0;
             // inputs to adders
             addInput1[j] <= 0;
             addInput2[j] <= 0;
@@ -90,10 +90,8 @@ module DotProductSt
             //$display("RESET AT: %g",$time);
          end
          else begin
-            else begin
-               mulWeight[j] <= Weights[j*WEIGHT_SIZE +: WEIGHT_SIZE];
-               mulPixel[j] <= Pixels [j*PIXEL_SIZE  +: PIXEL_SIZE];
-            end
+            mulWeight[j] <= Weights[j*WEIGHT_SIZE +: WEIGHT_SIZE];
+            mulPixel[j] <= Pixels [j*PIXEL_SIZE  +: PIXEL_SIZE];
             case(cnt3)
                0: begin
                   addInput1[j] <= FPMAns[j];
