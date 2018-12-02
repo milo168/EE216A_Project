@@ -1,3 +1,13 @@
+`define CLOG2(x) \
+   (x <= 2) ? 1 : \
+   (x <= 4) ? 2 : \
+   (x <= 8) ? 3 : \
+   (x <= 16) ? 4 : \
+   (x <= 32) ? 5 : \
+   (x <= 64) ? 6 : \
+   (x <= 128) ? 7 : \
+   -1
+
 module DotProductSt
 #(parameter PIXEL_N = 10,
   parameter WEIGHT_SIZE = 19,
@@ -5,32 +15,33 @@ module DotProductSt
   parameter FPM_DELAY = 6,
   parameter FPA_DELAY = 2,
   parameter PARALLEL = 2, 
+  parameter BUS_WIDTH = 1,
   parameter VAL_SIZE = 26)
 (
    input clk,
    input GlobalReset,
-   input [PIXEL_N*PIXEL_SIZE-1:0] Pixels,
-   input [PIXEL_N*WEIGHT_SIZE-1:0] Weights,
+   input [BUS_WIDTH*PARALLEL*PIXEL_SIZE-1:0] Pixels,
+   input [BUS_WIDTH*PARALLEL*WEIGHT_SIZE-1:0] Weights,
    output [VAL_SIZE-1:0] value
 );
 
    integer  pix_ind [0:PARALLEL-1]; // index of pixel to do
    
-   reg[WEIGHT_SIZE-1:0] A        [0:PARALLEL-1];
-   reg[PIXEL_SIZE-1:0]  B        [0:PARALLEL-1];
-   wire[VAL_SIZE-1:0]   FPMAns   [0:PARALLEL-1];
+   reg[WEIGHT_SIZE-1:0] mulWeight [0:PARALLEL-1];
+   reg[PIXEL_SIZE-1:0]  mulPixel  [0:PARALLEL-1];
+   wire[VAL_SIZE-1:0]   FPMAns    [0:PARALLEL-1];
    reg[VAL_SIZE-1:0]    addInput1 [0:PARALLEL-1];
    reg[VAL_SIZE-1:0]    addInput2 [0:PARALLEL-1];
    reg[VAL_SIZE-1:0]    addInput3 [0:PARALLEL-1];
-   wire[VAL_SIZE-1:0]   FPAAns1  [0:PARALLEL-1];
-   wire[VAL_SIZE-1:0]   FPAAns2  [0:PARALLEL-1];
-   wire[VAL_SIZE-1:0]   FPAAns3  [0:PARALLEL-1];
-   reg[VAL_SIZE-1:0]    sum1     [0:PARALLEL-1];
-   reg[VAL_SIZE-1:0]    sum2     [0:PARALLEL-1];
-   reg[VAL_SIZE-1:0]    sum3     [0:PARALLEL-1];
+   wire[VAL_SIZE-1:0]   FPAAns1   [0:PARALLEL-1];
+   wire[VAL_SIZE-1:0]   FPAAns2   [0:PARALLEL-1];
+   wire[VAL_SIZE-1:0]   FPAAns3   [0:PARALLEL-1];
+   reg[VAL_SIZE-1:0]    sum1      [0:PARALLEL-1];
+   reg[VAL_SIZE-1:0]    sum2      [0:PARALLEL-1];
+   reg[VAL_SIZE-1:0]    sum3      [0:PARALLEL-1];
 
-   integer cnt3;
-
+   reg[1:0] cnt3;
+   reg[`CLOG2(BUS_WIDTH):0] width_cnt;
 
    reg[VAL_SIZE-1:0]    sum_o;
    integer h;
@@ -49,8 +60,8 @@ module DotProductSt
    for(i=0; i<PARALLEL; i=i+1) begin:fpgen
       FixedPointMultiplier FPM1(.clk(clk),
                                 .GlobalReset(GlobalReset),
-                                .WeightPort(A[i]),
-                                .PixelPort(B[i]),
+                                .WeightPort(mulWeight[i]),
+                                .PixelPort(mulPixel[i]),
                                 .Output_syn(FPMAns[i]));
                           
       FixedPointAdder      FPA1(.clk(clk),
@@ -76,8 +87,8 @@ module DotProductSt
       always@(posedge clk, posedge GlobalReset)begin
          if(GlobalReset == 1'b1) begin
             // inputs to multipliers
-            A[j] <= 0;
-            B[j] <= 0;
+            mulWeight[j] <= 0;
+            mulPixel[j] <= 0;
             // inputs to adders
             addInput1[j] <= 0;
             addInput2[j] <= 0;
@@ -86,20 +97,13 @@ module DotProductSt
             sum1[j] <= 0;
             sum2[j] <= 0;
             sum3[j] <= 0;
-            pix_ind[j] <= j*PIXEL_N/PARALLEL;
             cnt3 <= 0;
+	    width_cnt <= 0;
             //$display("RESET AT: %g",$time);
          end
          else begin
-            if(pix_ind[j] >= (j+1)*PIXEL_N/PARALLEL) begin // FINISH
-               A[j] <= 0;
-               B[j] <= 0;
-            end
-            else begin
-               A[j] <= Weights[pix_ind[j]*WEIGHT_SIZE +: WEIGHT_SIZE];
-               B[j] <= Pixels [pix_ind[j]*PIXEL_SIZE  +: PIXEL_SIZE];
-               pix_ind[j] = pix_ind[j] + 1;
-            end
+            mulWeight[j] <= Weights[(j*WEIGHT_SIZE + width_cnt*WEIGHT_SIZE) +: WEIGHT_SIZE];
+            mulPixel[j] <= Pixels [(j*PIXEL_SIZE + width_cnt*PIXEL_SIZE) +: PIXEL_SIZE];
             case(cnt3)
                0: begin
                   addInput1[j] <= FPMAns[j];
@@ -120,10 +124,18 @@ module DotProductSt
             sum1[j] <= FPAAns1[j];
             sum2[j] <= FPAAns2[j];
             sum3[j] <= FPAAns3[j];
+
+            // increment cnt3
             if(cnt3 == 2)
                cnt3 <= 0;
             else
                cnt3 <= cnt3 + 1;
+
+            // increment width_cnt
+            if(width_cnt == BUS_WIDTH-1)
+               width_cnt <= 0;
+            else
+               width_cnt <= width_cnt + 1;
          end
       end
    end
