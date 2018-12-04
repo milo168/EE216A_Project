@@ -96,6 +96,7 @@ module DotProductSt
    endgenerate
 
    genvar j;
+   generate
    for(j=0; j<PARALLEL; j=j+1) begin:alwaysgen
       always@(posedge clk, posedge GlobalReset)begin
          if(GlobalReset == 1'b1) begin
@@ -152,5 +153,6 @@ module DotProductSt
          end
       end
    end
+   endgenerate
 
 endmodule
