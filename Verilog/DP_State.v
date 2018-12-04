@@ -106,8 +106,8 @@ module DotProductSt
 	 else
 	    cnt3 <= cnt3 + 1;
 
-	 if(width_cnt == BUS_WIDTH-1)
-	    width_cnt <= 0;
+	 if(width_cnt == BUS_WIDTH)
+	    //width_cnt <= 0;
 	 else
 	    width_cnt <= width_cnt + 1;
       end
