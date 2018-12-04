@@ -30,11 +30,11 @@ module DotProductSt
    parameter BUS_WIDTH = 7;
    parameter VAL_SIZE = 26;
 
-   input clk,
-   input GlobalReset,
-   input [BUS_WIDTH*PARALLEL*PIXEL_SIZE-1:0] Pixels,
-   input [BUS_WIDTH*PARALLEL*WEIGHT_SIZE-1:0] Weights,
-   output [VAL_SIZE-1:0] value
+   input clk;
+   input GlobalReset;
+   input [BUS_WIDTH*PARALLEL*PIXEL_SIZE-1:0] Pixels;
+   input [BUS_WIDTH*PARALLEL*WEIGHT_SIZE-1:0] Weights;
+   output [VAL_SIZE-1:0] value;
 
    integer  pix_ind [0:PARALLEL-1]; // index of pixel to do
    
