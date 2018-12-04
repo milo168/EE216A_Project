@@ -12,14 +12,6 @@
    -1
 
 module DotProductSt
-#(parameter PIXEL_N = 10,
-  parameter WEIGHT_SIZE = 19,
-  parameter PIXEL_SIZE = 10,
-  parameter FPM_DELAY = 6,
-  parameter FPA_DELAY = 2,
-  parameter PARALLEL = 2, 
-  parameter BUS_WIDTH = 1,
-  parameter VAL_SIZE = 26)
 (
    input clk,
    input GlobalReset,
@@ -27,6 +19,16 @@ module DotProductSt
    input [BUS_WIDTH*PARALLEL*WEIGHT_SIZE-1:0] Weights,
    output [VAL_SIZE-1:0] value
 );
+
+   parameter NEURONS = 10;
+   parameter PIXEL_N = 785;
+   parameter WEIGHT_SIZE = 19;
+   parameter PIXEL_SIZE = 10;
+   parameter FPM_DELAY = 6;
+   parameter FPA_DELAY = 2;
+   parameter PARALLEL = 4;
+   parameter BUS_WIDTH = 7;
+   parameter VAL_SIZE = 26;
 
    integer  pix_ind [0:PARALLEL-1]; // index of pixel to do
    
