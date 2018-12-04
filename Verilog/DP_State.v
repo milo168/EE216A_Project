@@ -13,11 +13,11 @@
 
 module DotProductSt
 (
-   input clk,
-   input GlobalReset,
-   input [BUS_WIDTH*PARALLEL*PIXEL_SIZE-1:0] Pixels,
-   input [BUS_WIDTH*PARALLEL*WEIGHT_SIZE-1:0] Weights,
-   output [VAL_SIZE-1:0] value
+   clk,
+   GlobalReset,
+   Pixels,
+   Weights,
+   value
 );
 
    parameter NEURONS = 10;
@@ -29,6 +29,12 @@ module DotProductSt
    parameter PARALLEL = 4;
    parameter BUS_WIDTH = 7;
    parameter VAL_SIZE = 26;
+
+   input clk,
+   input GlobalReset,
+   input [BUS_WIDTH*PARALLEL*PIXEL_SIZE-1:0] Pixels,
+   input [BUS_WIDTH*PARALLEL*WEIGHT_SIZE-1:0] Weights,
+   output [VAL_SIZE-1:0] value
 
    integer  pix_ind [0:PARALLEL-1]; // index of pixel to do
    
@@ -62,6 +68,7 @@ module DotProductSt
    
    // generate PARALLEL number of FPM and FPAs
    genvar i;
+   generate
    for(i=0; i<PARALLEL; i=i+1) begin:fpgen
       FixedPointMultiplier FPM1(.clk(clk),
                                 .GlobalReset(GlobalReset),
@@ -86,6 +93,7 @@ module DotProductSt
                                 .Output_syn(FPAAns3[i]));
 
    end
+   endgenerate
 
    genvar j;
    for(j=0; j<PARALLEL; j=j+1) begin:alwaysgen

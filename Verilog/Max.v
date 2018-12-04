@@ -1,11 +1,15 @@
 module Max
 (
-	input GlobalReset,
-	input [NUM_SIZE*10-1:0] Num,
-	output [3:0] Index
+	GlobalReset,
+	Num,
+	Index
 );
 
 	parameter NUM_SIZE = 26;
+
+	input GlobalReset,
+	input [NUM_SIZE*10-1:0] Num,
+	output [3:0] Index
 
 	reg signed [NUM_SIZE-1:0] max;
 	reg [3:0] ind_o;
