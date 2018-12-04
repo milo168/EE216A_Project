@@ -15,7 +15,7 @@ define_design_lib WORK -path ./WORK
 set alib_library_analysis_path “./alib-52/”
 
 # Read the gate-level verilog files
-analyze -format verilog {Image_Classifier.v DotProduct784.v FixedPointAdder.v FixedPointMultiplier.v SynLib.v}
+analyze -format verilog {Image_Classifier.v DP_State.v Max.v FixedPointAdder.v FixedPointMultiplier.v SynLib.v}
 set DESIGN_NAME Image_Classifier
 
 elaborate $DESIGN_NAME
@@ -45,16 +45,17 @@ set_input_delay -min $IN_DEL_MIN -clock "clk" $ALL_IN_BUT_CLK
 set_output_delay $OUT_DEL -clock "clk" [all_outputs]
 set_output_delay -min $OUT_DEL_MIN -clock "clk" [all_outputs]
 
-set_max_area 0.0
+#set_max_area 0.0
 
 
 ungroup -flatten -all
 uniquify
 
-compile -only_design_rule
-compile -map high
-compile -boundary_optimization
-compile -only_hold_time
+#compile -only_design_rule
+#compile -map high
+#compile -boundary_optimization
+#compile -only_hold_time
+compile
 
 report_timing -path full -delay min -max_paths 10 -nworst 2 > Design.holdtiming
 report_timing -path full -delay max -max_paths 10 -nworst 2 > Design.setuptiming

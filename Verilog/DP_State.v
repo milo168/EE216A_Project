@@ -105,8 +105,8 @@ module DotProductSt
             //$display("RESET AT: %g",$time);
          end
          else begin
-            mulWeight[j] <= Weights[(j*WEIGHT_SIZE + width_cnt*WEIGHT_SIZE) +: WEIGHT_SIZE];
-            mulPixel[j] <= Pixels [(j*PIXEL_SIZE + width_cnt*PIXEL_SIZE) +: PIXEL_SIZE];
+            mulWeight[j] <= Weights[(j*WEIGHT_SIZE*BUS_WIDTH + width_cnt*WEIGHT_SIZE) +: WEIGHT_SIZE];
+            mulPixel[j] <= Pixels [(j*PIXEL_SIZE*BUS_WIDTH + width_cnt*PIXEL_SIZE) +: PIXEL_SIZE];
             case(cnt3)
                0: begin
                   addInput1[j] <= FPMAns[j];

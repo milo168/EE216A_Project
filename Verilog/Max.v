@@ -12,7 +12,7 @@ module Max
 	assign Index = ind_o;
 
 	always @(*) begin
-		if(GlobalReset == 1'b0) begin
+		if(GlobalReset == 1'b1) begin
 			max = 0;
 			ind_o = -1;
 		end
