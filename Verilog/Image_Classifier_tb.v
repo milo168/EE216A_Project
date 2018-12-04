@@ -8680,6 +8680,7 @@ parameter fullclock=2*halfclock;
 always #halfclock clk = ~clk;
 
 initial begin
+	$sdf_annotate(“Image_Classifier.sdf”, MyImage_Classifier)
 	GlobalReset = 1'b0;
 	clk = 1'b1;
 	Input_Valid = 1'b0;fal = 0; tot = 10;
