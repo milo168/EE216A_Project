@@ -48,7 +48,7 @@ reg[`CLOG2(PIXEL_N/BUS_WIDTH/PARALLEL)-1:0] shiftCounter;
 reg ready;
 reg internalReset;
 wire[VAL_SIZE*NEURONS*PARALLEL-1:0] value_par;
-wire[VAL_SIZE*NEURONS-1:0] value;
+reg[VAL_SIZE*NEURONS-1:0] value;
 
 genvar m;
 generate
@@ -67,13 +67,18 @@ genvar k;
 genvar j;
 generate
     for(k=0; k<NEURONS; k=k+1) begin:neurgen
-        for(j=0; j<PARALLEL; j=j+1) begin:pargen
+        for(j=0; j<PARALLEL-1; j=j+1) begin:pargen
             DotProductSt DP(.clk(clk),
                 .GlobalReset(internalReset),
-                .Pixels(PixelInput[j*PIXEL_N/PARALLEL*PIXEL_SIZE +: PIXEL_N/PARALLEL*PIXEL_SIZE]),
-                .Weights(WeightInput[k][j*PIXEL_N/PARALLEL*WEIGHT_SIZE +: PIXEL_N/PARALLEL*WEIGHT_SIZE]),
+                .Pixels(PixelsStore[j*PIXEL_N/PARALLEL*PIXEL_SIZE +: PIXEL_N/PARALLEL*PIXEL_SIZE]),
+                .Weights(WeightsStore[k][j*PIXEL_N/PARALLEL*WEIGHT_SIZE +: PIXEL_N/PARALLEL*WEIGHT_SIZE]),
                 .value(value_par[VAL_SIZE*(PARALLEL*k+j) +: VAL_SIZE]));
         end
+	DotProductSt #(.BUS_WIDTH(BUS_WIDTH+1)) DP1(.clk(clk),
+	    .GlobalReset(internalReset),
+	    .Pixels(PixelsStore[(PARALLEL-1)*PIXEL_N/PARALLEL*PIXEL_SIZE +: PIXEL_N/PARALLEL*PIXEL_SIZE+PIXEL_SIZE]),
+	    .Weights(WeightsStore[k][(PARALLEL-1)*PIXEL_N/PARALLEL*WEIGHT_SIZE +: PIXEL_N/PARALLEL*WEIGHT_SIZE+WEIGHT_SIZE]),
+	    .value(value_par[VAL_SIZE*(PARALLEL*k+(PARALLEL-1)) +: VAL_SIZE]));
     end
 endgenerate
 
@@ -111,7 +116,7 @@ always@(posedge clk) begin
 		if(switchCounter < 300) begin
 			switchCounter <= switchCounter + 1;
 		end
-		else if(switchCounter==320) begin
+		else if(switchCounter==300) begin
 			ready <= 1'b1;
 			$display("9: %d %b.%b %h", switchCounter, value[259:252],value[251:234],value[259:234]);
 			$display("8: %d %b.%b %h", switchCounter, value[233:226],value[225:208],value[233:208]);

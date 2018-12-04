@@ -108,6 +108,7 @@ module DotProductSt
 
 	 if(width_cnt == BUS_WIDTH)
 	    //width_cnt <= 0;
+	    width_cnt <= width_cnt;
 	 else
 	    width_cnt <= width_cnt + 1;
       end
@@ -131,9 +132,15 @@ module DotProductSt
             sum3[j] <= 0;
             //$display("RESET AT: %g",$time);
          end
-         else if(width_cnt < BUS_WIDTH) begin
-            mulWeight[j] <= Weights[(j*WEIGHT_SIZE*BUS_WIDTH + width_cnt*WEIGHT_SIZE) +: WEIGHT_SIZE];
-            mulPixel[j] <= Pixels [(j*PIXEL_SIZE*BUS_WIDTH + width_cnt*PIXEL_SIZE) +: PIXEL_SIZE];
+         else begin
+            if(width_cnt < BUS_WIDTH) begin
+	       mulWeight[j] <= Weights[(j*WEIGHT_SIZE*BUS_WIDTH + width_cnt*WEIGHT_SIZE) +: WEIGHT_SIZE];
+               mulPixel[j] <= Pixels [(j*PIXEL_SIZE*BUS_WIDTH + width_cnt*PIXEL_SIZE) +: PIXEL_SIZE];
+	    end
+	    else begin
+	       mulWeight[j] <= 0;
+	       mulPixel[j] <= 0;
+	    end
             case(cnt3)
                0: begin
                   addInput1[j] <= FPMAns[j];
