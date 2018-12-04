@@ -27,7 +27,7 @@ module DotProductSt
    parameter FPM_DELAY = 6;
    parameter FPA_DELAY = 2;
    parameter PARALLEL = 4;
-   parameter BUS_WIDTH = 7;
+   parameter BUS_WIDTH = 28;
    parameter VAL_SIZE = 26;
 
    input clk;
