@@ -27,7 +27,7 @@ module DotProductSt
    parameter FPM_DELAY = 6;
    parameter FPA_DELAY = 2;
    parameter PARALLEL = 4;
-   parameter BUS_WIDTH = 28;
+   parameter BUS_WIDTH = 7;
    parameter VAL_SIZE = 26;
 
    input clk;
@@ -95,6 +95,24 @@ module DotProductSt
    end
    endgenerate
 
+   always@(posedge clk, posedge GlobalReset)begin
+      if(GlobalReset == 1'b1) begin
+         cnt3 <= 0;
+	 width_cnt <= 0;
+      end
+      else begin
+         if(cnt3 == 2)
+	    cnt3 <= 0;
+	 else
+	    cnt3 <= cnt3 + 1;
+
+	 if(width_cnt == BUS_WIDTH-1)
+	    width_cnt <= 0;
+	 else
+	    width_cnt <= width_cnt + 1;
+      end
+   end
+
    genvar j;
    generate
    for(j=0; j<PARALLEL; j=j+1) begin:alwaysgen
@@ -111,8 +129,6 @@ module DotProductSt
             sum1[j] <= 0;
             sum2[j] <= 0;
             sum3[j] <= 0;
-            cnt3 <= 0;
-            width_cnt <= 0;
             //$display("RESET AT: %g",$time);
          end
          else begin
@@ -138,19 +154,7 @@ module DotProductSt
             sum1[j] <= FPAAns1[j];
             sum2[j] <= FPAAns2[j];
             sum3[j] <= FPAAns3[j];
-
-            // increment cnt3
-            if(cnt3 == 2)
-               cnt3 <= 0;
-            else
-               cnt3 <= cnt3 + 1;
-
-            // increment width_cnt
-            if(width_cnt == BUS_WIDTH-1)
-               width_cnt <= 0;
-            else
-               width_cnt <= width_cnt + 1;
-         end
+	 end
       end
    end
    endgenerate

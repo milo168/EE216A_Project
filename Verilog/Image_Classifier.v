@@ -29,7 +29,7 @@ parameter PIXEL_SIZE = 10;
 parameter FPM_DELAY = 6;
 parameter FPA_DELAY = 2;
 parameter PARALLEL = 4;
-parameter BUS_WIDTH = 28;
+parameter BUS_WIDTH = 7;
 parameter VAL_SIZE = 26;
 
 input clk;
@@ -49,11 +49,12 @@ reg ready;
 reg internalReset;
 wire[VAL_SIZE*NEURONS-1:0] value;
 reg flag;
+reg flag2;
 
 reg[BUS_WIDTH*PARALLEL*PIXEL_SIZE-1:0] PixelInput;
 reg[BUS_WIDTH*PARALLEL*WEIGHT_SIZE-1:0] WeightInput[0:NEURONS-1];
 
-reg[`LOG2(NEURONS)-1:0] i;
+reg[`CLOG2(NEURONS)-1:0] i;
 
 assign Output_Valid = ready;
 
@@ -80,12 +81,12 @@ always@(posedge clk) begin
 		ready <= 1'b0;
 		internalReset <= 1'b1;
 		PixelInput<=0;
-		WeightInput[0]<=0
+		WeightInput[0]<=0;WeightInput[1]<=0;WeightInput[2]<=0;WeightInput[3]<=0;WeightInput[4]<=0;WeightInput[5]<=0;WeightInput[6]<=0;WeightInput[7]<=0;WeightInput[8]<=0;WeightInput[9]<=0;
 		PixelsStore<=0;
 		WeightsStore[0]<=0;WeightsStore[1]<=0;WeightsStore[2]<=0;WeightsStore[3]<=0;WeightsStore[4]<=0;WeightsStore[5]<=0;WeightsStore[6]<=0;WeightsStore[7]<=0;WeightsStore[8]<=0;WeightsStore[9]<=0;
 		flag <= 0;
 	end
-	else if(Input_Valid == 1'b1 && flag == 0) begin
+	else if(Input_Valid == 1'b1) begin
 		switchCounter <= 0;
 		busCounter <= 0;
 		shiftCounter <= 0;
@@ -97,21 +98,25 @@ always@(posedge clk) begin
 	end
 	else if(flag == 1) begin
 		internalReset <= 1'b0;
+		PixelInput <= PixelsStore[PARALLEL*BUS_WIDTH*PIXEL_SIZE-1:0];
 		flag <= 0;
+		for(i=0; i<NEURONS; i=i+1) begin
+			WeightInput[i] <= WeightsStore[i][PARALLEL*BUS_WIDTH*WEIGHT_SIZE-1:0];
+		end
 	end
 	else if(shiftCounter < PIXEL_N/PARALLEL/BUS_WIDTH+1) begin
 		internalReset <= 1'b0;
 		if(busCounter >= BUS_WIDTH-1) begin
 			if(shiftCounter == PIXEL_N/PARALLEL/BUS_WIDTH) begin
-				PixelInput = PixelsStore[PIXEL_N*PIXEL_SIZE-1:(PIXEL_N-1)*PIXEL_SIZE];
+				PixelInput <= PixelsStore[PIXEL_N*PIXEL_SIZE-1:(PIXEL_N-1)*PIXEL_SIZE];
 				for(i=0; i<NEURONS; i=i+1) begin
-					WeightInput[i] = WeightsStore[i][PIXEL_N*WEIGHT_SIZE-1:(PIXEL_N-1)*WEIGHT_SIZE];
+					WeightInput[i] <= WeightsStore[i][PIXEL_N*WEIGHT_SIZE-1:(PIXEL_N-1)*WEIGHT_SIZE];
 				end
 			end
-			else
-				PixelInput[i] = PixelsStore[(shiftCounter*PARALLEL*BUS_WIDTH+busCounter)*PIXEL_SIZE-1:0];
+			else begin
+				PixelInput <= PixelsStore[shiftCounter*PARALLEL*BUS_WIDTH*PIXEL_SIZE +: PARALLEL*BUS_WIDTH*PIXEL_SIZE];
 				for(i=0; i<NEURONS; i=i+1) begin
-					WeightInput[i] = WeightsStore[i][(shiftCounter*PARALLEL*BUS_WIDTH+busCounter)*WEIGHT_SIZE-1:0];
+					WeightInput[i] <= WeightsStore[i][shiftCounter*PARALLEL*BUS_WIDTH*WEIGHT_SIZE +: PARALLEL*BUS_WIDTH*WEIGHT_SIZE];
 				end
 
 			end
@@ -123,11 +128,13 @@ always@(posedge clk) begin
 		end
 	end
 	else begin
+		PixelInput <= 0;
 		if(switchCounter < 20) begin
 			switchCounter <= switchCounter + 1;
 		end
 		else if(switchCounter==20) begin
 			ready <= 1'b1;
+			/*
 			$display("9: %d %b.%b %h", switchCounter, value[259:252],value[251:234],value[259:234]);
 			$display("8: %d %b.%b %h", switchCounter, value[233:226],value[225:208],value[233:208]);
 			$display("7: %d %b.%b %h", switchCounter, value[207:200],value[199:182],value[207:182]);
@@ -138,7 +145,9 @@ always@(posedge clk) begin
 			$display("2: %d %b.%b %h", switchCounter, value[77:70],value[69:52],value[77:52]);
 			$display("1: %d %b.%b %h", switchCounter, value[51:44],value[43:26],value[51:26]);
 			$display("0: %d %b.%b %h", switchCounter, value[25:18],value[17:0],value[25:0]);
+			*/
 			switchCounter <= switchCounter + 1;
+			//$display("%h", PixelsStore);
 		end
 
 	end
