@@ -26,8 +26,8 @@ module DotProductSt
    parameter PIXEL_SIZE = 10;
    parameter FPM_DELAY = 6;
    parameter FPA_DELAY = 2;
-   parameter PARALLEL = 4;
-   parameter BUS_WIDTH = 7;
+   parameter PARALLEL = 1;
+   parameter BUS_WIDTH = 196;
    parameter VAL_SIZE = 26;
 
    input clk;
@@ -131,7 +131,7 @@ module DotProductSt
             sum3[j] <= 0;
             //$display("RESET AT: %g",$time);
          end
-         else begin
+         else if(width_cnt < BUS_WIDTH) begin
             mulWeight[j] <= Weights[(j*WEIGHT_SIZE*BUS_WIDTH + width_cnt*WEIGHT_SIZE) +: WEIGHT_SIZE];
             mulPixel[j] <= Pixels [(j*PIXEL_SIZE*BUS_WIDTH + width_cnt*PIXEL_SIZE) +: PIXEL_SIZE];
             case(cnt3)
