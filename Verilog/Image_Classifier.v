@@ -116,8 +116,9 @@ always@(posedge clk) begin
 		if(switchCounter < 300) begin
 			switchCounter <= switchCounter + 1;
 		end
-		else if(switchCounter==300) begin
+		else if(switchCounter==210) begin
 			ready <= 1'b1;
+            /*
 			$display("9: %d %b.%b %h", switchCounter, value[259:252],value[251:234],value[259:234]);
 			$display("8: %d %b.%b %h", switchCounter, value[233:226],value[225:208],value[233:208]);
 			$display("7: %d %b.%b %h", switchCounter, value[207:200],value[199:182],value[207:182]);
@@ -128,6 +129,7 @@ always@(posedge clk) begin
 			$display("2: %d %b.%b %h", switchCounter, value[77:70],value[69:52],value[77:52]);
 			$display("1: %d %b.%b %h", switchCounter, value[51:44],value[43:26],value[51:26]);
 			$display("0: %d %b.%b %h", switchCounter, value[25:18],value[17:0],value[25:0]);
+            */
 			switchCounter <= switchCounter + 1;
 			//$display("%h", PixelsStore);
 		end
