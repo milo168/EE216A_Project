@@ -98,19 +98,19 @@ module DotProductSt
    always@(posedge clk, posedge GlobalReset)begin
       if(GlobalReset == 1'b1) begin
          cnt3 <= 0;
-	 width_cnt <= 0;
+     width_cnt <= 0;
       end
       else begin
          if(cnt3 == 2)
-	    cnt3 <= 0;
-	 else
-	    cnt3 <= cnt3 + 1;
+        cnt3 <= 0;
+     else
+        cnt3 <= cnt3 + 1;
 
-	 if(width_cnt == BUS_WIDTH)
-	    //width_cnt <= 0;
-	    width_cnt <= width_cnt;
-	 else
-	    width_cnt <= width_cnt + 1;
+     if(width_cnt == BUS_WIDTH)
+        //width_cnt <= 0;
+        width_cnt <= width_cnt;
+     else
+        width_cnt <= width_cnt + 1;
       end
    end
 
@@ -134,13 +134,13 @@ module DotProductSt
          end
          else begin
             if(width_cnt < BUS_WIDTH) begin
-	       mulWeight[j] <= Weights[(j*WEIGHT_SIZE*BUS_WIDTH + width_cnt*WEIGHT_SIZE) +: WEIGHT_SIZE];
+           mulWeight[j] <= Weights[(j*WEIGHT_SIZE*BUS_WIDTH + width_cnt*WEIGHT_SIZE) +: WEIGHT_SIZE];
                mulPixel[j] <= Pixels [(j*PIXEL_SIZE*BUS_WIDTH + width_cnt*PIXEL_SIZE) +: PIXEL_SIZE];
-	    end
-	    else begin
-	       mulWeight[j] <= 0;
-	       mulPixel[j] <= 0;
-	    end
+        end
+        else begin
+           mulWeight[j] <= 0;
+           mulPixel[j] <= 0;
+        end
             case(cnt3)
                0: begin
                   addInput1[j] <= FPMAns[j];
@@ -161,7 +161,7 @@ module DotProductSt
             sum1[j] <= FPAAns1[j];
             sum2[j] <= FPAAns2[j];
             sum3[j] <= FPAAns3[j];
-	 end
+         end
       end
    end
    endgenerate
