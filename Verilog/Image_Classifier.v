@@ -113,7 +113,7 @@ always@(posedge clk) begin
 		flag <= 0;
 	end
 	else begin
-		if(switchCounter < 300) begin
+		if(switchCounter < 210) begin
 			switchCounter <= switchCounter + 1;
 		end
 		else if(switchCounter==210) begin
