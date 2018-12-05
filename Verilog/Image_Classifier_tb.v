@@ -8674,7 +8674,7 @@ Image_Classifier MyImage_Classifier(
 .Image_Number,.Output_Valid
 );
 
-parameter halfclock=1;
+parameter halfclock=4;
 parameter fullclock=2*halfclock;
 // Oscillate the clock (cycle time is 100*timescales)
 always #halfclock clk = ~clk;
